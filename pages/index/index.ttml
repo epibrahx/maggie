@@ -1,0 +1,3 @@
+<view class="container">
+    <image src="/assets/imgs/empty.png" class="placeholder"></image>
+</view>
