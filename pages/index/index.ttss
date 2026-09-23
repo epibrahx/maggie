@@ -1,8 +1,22 @@
-.placeholder {
-  width: 168px;
-  height: 104px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
+.page { min-height: 100vh; box-sizing: border-box; padding: 52px 20px 40px; background: #f7f7fb; color: #242334; }
+.hero { padding: 24px 22px 18px; border-radius: 24px; color: #fff; background: linear-gradient(140deg, #6048df 0%, #8975f4 100%); box-shadow: 0 12px 26px rgba(95, 72, 223, .2); }
+.hero-top { display: flex; align-items: flex-start; justify-content: space-between; }
+.eyebrow { margin-bottom: 10px; color: rgba(255,255,255,.7); font-size: 10px; letter-spacing: 2px; }
+.hero-title { display: block; color: #fff; font-size: 26px; font-weight: 700; line-height: 1.35; }
+.hero-desc { display: block; margin-top: 10px; color: rgba(255,255,255,.75); font-size: 12px; }
+.hero-orb { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #6b54e7; font-size: 24px; background: rgba(255,255,255,.9); transform: rotate(15deg); }
+.hero-bottom { display: flex; align-items: center; margin-top: 22px; }
+.live-pill { display: flex; align-items: center; padding: 6px 10px; border-radius: 20px; color: #fff; font-size: 11px; background: rgba(30,20,120,.25); }
+.live-dot { width: 6px; height: 6px; margin-right: 6px; border-radius: 50%; background: #ff8d9e; }
+.hero-time { margin-left: 12px; color: rgba(255,255,255,.72); font-size: 11px; }
+.section-head { display: flex; align-items: center; justify-content: space-between; margin: 28px 2px 13px; }
+.section-title { display: block; font-size: 17px; font-weight: 700; }
+.section-subtitle { display: block; margin-top: 4px; color: #a5a3b2; font-size: 11px; }
+.status { color: #aaa8b6; font-size: 11px; }
+.status-online { color: #5fbd9b; }
+.metrics { display: flex; }
+.metric { flex: 1; padding: 15px; border-radius: 16px; background: #fff; box-shadow: 0 4px 16px rgba(49,43,91,.04); }.metric + .metric { margin-left: 10px; }
+.metric-primary { background: #f0eeff; }
+.metric-label { display: block; color: #8b899a; font-size: 11px; }
+.metric-value { display: block; margin: 7px 0 5px; color: #28253c; font-size: 23px; font-weight: 700; }
+.metric-note { color: #aaa8b6; font-size: 10px; }
