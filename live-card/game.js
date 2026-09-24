@@ -131,9 +131,9 @@ Card({
   // ---- internals ----
 
   applyLike(message) {
-    const likes = Number(message && message._like_num_)
+    const likes = Number(message && message.like_num)
     if (!likes) return
-    const msgId = message._msg_id_
+    const msgId = message.msg_id
     if (msgId) {
       if (this.seenMessages.has(msgId)) return
       this.seenMessages.add(msgId)
@@ -141,9 +141,9 @@ Card({
         this.seenMessages.delete(this.seenMessages.values().next().value)
       }
     }
-    const id = message._sec_open_id_ || message._nickname_ || 'anonymous'
+    const id = message.sec_open_id || message.nickname || 'anonymous'
     const viewer = this.viewers.get(id) || { id, name: '', likes: 0 }
-    viewer.name = message._nickname_ || viewer.name || '神秘观众'
+    viewer.name = message.nickname || viewer.name || '神秘观众'
     viewer.likes += likes
     viewer.reachedSeq = ++this.seq
     this.viewers.set(id, viewer)
