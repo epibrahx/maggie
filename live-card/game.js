@@ -36,36 +36,98 @@ Card({
 
   draw() {
     const { canvas, ctx, metrics } = this
+    if (!canvas || !ctx) return
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-    ctx.fillStyle = '#221b4f'
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
-    ctx.fillStyle = '#6f5be7'
-    ctx.fillRect(0, 0, canvas.width, 58)
-    ctx.fillStyle = '#ff98aa'
+    const width = canvas.width
+    const height = canvas.height
+    const scaleX = width / 220
+    const scaleY = height / 160
+    const cardWidth = 220
+    const cardHeight = 160
+
+    ctx.save()
+    ctx.scale(scaleX, scaleY)
+    ctx.clearRect(0, 0, cardWidth, cardHeight)
+
+    // The host owns the rounded card frame; paint a translucent full-bleed
+    // backdrop so its corners stay visible and no second frame is introduced.
+    ctx.fillStyle = 'rgba(16, 18, 24, 0.82)'
+    ctx.fillRect(0, 0, cardWidth, cardHeight)
+
+    // Header: one warm live pulse plus restrained brand signature.
+    ctx.fillStyle = 'rgba(255, 77, 94, 0.16)'
     ctx.beginPath()
-    ctx.arc(18, 20, 5, 0, Math.PI * 2)
+    ctx.arc(18, 19, 8, 0, Math.PI * 2)
     ctx.fill()
+    ctx.fillStyle = '#ff5368'
+    ctx.beginPath()
+    ctx.arc(18, 19, 3, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)'
+    ctx.font = '600 10px sans-serif'
+    ctx.fillText('直播热度', 31, 22)
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.38)'
+    ctx.font = '9px sans-serif'
+    ctx.textAlign = 'right'
+    ctx.fillText('喜鹊 LIVE', 207, 22)
+    ctx.textAlign = 'left'
 
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.09)'
+    ctx.lineWidth = 0.8
+    ctx.beginPath()
+    ctx.moveTo(13, 36)
+    ctx.lineTo(207, 36)
+    ctx.stroke()
+
+    // Open circular meter frames the number as a live pulse, not a table cell.
+    const cx = 110
+    const cy = 88
+    const radius = 35
+    ctx.beginPath()
+    ctx.arc(cx, cy, radius, -Math.PI * 0.78, Math.PI * 0.78)
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.13)'
+    ctx.lineWidth = 3
+    ctx.lineCap = 'round'
+    ctx.stroke()
+    const pulse = Math.min(0.72, 0.16 + Math.log10(Number(metrics.interactionCount || 0) + 1) * 0.17)
+    ctx.beginPath()
+    ctx.arc(cx, cy, radius, -Math.PI * 0.78, -Math.PI * 0.78 + Math.PI * 1.56 * pulse)
+    const arc = ctx.createLinearGradient(cx - radius, cy, cx + radius, cy)
+    arc.addColorStop(0, '#ff596e')
+    arc.addColorStop(1, '#ffc17a')
+    ctx.strokeStyle = arc
+    ctx.lineWidth = 3
+    ctx.lineCap = 'round'
+    ctx.stroke()
+
+    // The live interaction total is the single focal point.
+    ctx.textAlign = 'center'
     ctx.fillStyle = '#ffffff'
-    ctx.font = 'bold 15px sans-serif'
-    ctx.fillText('喜鹊 · 直播间', 30, 25)
+    ctx.font = 'bold 27px sans-serif'
+    ctx.fillText(Number(metrics.interactionCount || 0).toLocaleString('zh-CN'), cx, 90)
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.58)'
+    ctx.font = '9px sans-serif'
+    ctx.fillText('本场互动', cx, 103)
+    ctx.textAlign = 'left'
+
+    // Bottom heartbeat: heart beats and likes stay secondary to the headline.
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.065)'
+    ctx.beginPath()
+    ctx.roundRect(12, 126, 196, 22, 11)
+    ctx.fill()
+    ctx.fillStyle = '#ff7183'
     ctx.font = '11px sans-serif'
-    ctx.fillStyle = 'rgba(255,255,255,.75)'
-    ctx.fillText('LIVE INTERACTION', 30, 43)
+    ctx.fillText('♥', 21, 141)
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.56)'
+    ctx.font = '9px sans-serif'
+    ctx.fillText('点赞', 38, 140)
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)'
+    ctx.font = '600 10px sans-serif'
+    ctx.textAlign = 'right'
+    ctx.fillText(Number(metrics.likeCount || 0).toLocaleString('zh-CN'), 198, 140)
+    ctx.textAlign = 'left'
 
-    ctx.fillStyle = '#ffffff'
-    ctx.font = 'bold 25px sans-serif'
-    ctx.fillText(String(metrics.interactionCount), 18, 94)
-    ctx.font = '11px sans-serif'
-    ctx.fillStyle = '#bdb5ff'
-    ctx.fillText('实时互动', 20, 112)
-
-    ctx.fillStyle = '#372d70'
-    ctx.fillRect(18, 127, canvas.width - 36, 1)
-    ctx.fillStyle = '#ffffff'
-    ctx.font = '12px sans-serif'
-    ctx.fillText(`点赞 ${metrics.likeCount}`, 18, 148)
+    ctx.restore()
   },
 
   created: function () {
@@ -76,6 +138,8 @@ Card({
       interactionCount: 0,
     }
     this.subscriptionState = 'connecting'
+    this.canvas.width = 440
+    this.canvas.height = 320
     this.draw()
 
     tt.subscribeLiveInteractPluginMessage({
