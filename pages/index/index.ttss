@@ -1,22 +1,105 @@
-.page { min-height: 100vh; box-sizing: border-box; padding: 52px 20px 40px; background: #f7f7fb; color: #242334; }
-.hero { padding: 24px 22px 18px; border-radius: 24px; color: #fff; background: linear-gradient(140deg, #6048df 0%, #8975f4 100%); box-shadow: 0 12px 26px rgba(95, 72, 223, .2); }
-.hero-top { display: flex; align-items: flex-start; justify-content: space-between; }
-.eyebrow { margin-bottom: 10px; color: rgba(255,255,255,.7); font-size: 10px; letter-spacing: 2px; }
-.hero-title { display: block; color: #fff; font-size: 26px; font-weight: 700; line-height: 1.35; }
-.hero-desc { display: block; margin-top: 10px; color: rgba(255,255,255,.75); font-size: 12px; }
-.hero-orb { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #6b54e7; font-size: 24px; background: rgba(255,255,255,.9); transform: rotate(15deg); }
-.hero-bottom { display: flex; align-items: center; margin-top: 22px; }
-.live-pill { display: flex; align-items: center; padding: 6px 10px; border-radius: 20px; color: #fff; font-size: 11px; background: rgba(30,20,120,.25); }
-.live-dot { width: 6px; height: 6px; margin-right: 6px; border-radius: 50%; background: #ff8d9e; }
-.hero-time { margin-left: 12px; color: rgba(255,255,255,.72); font-size: 11px; }
-.section-head { display: flex; align-items: center; justify-content: space-between; margin: 28px 2px 13px; }
-.section-title { display: block; font-size: 17px; font-weight: 700; }
-.section-subtitle { display: block; margin-top: 4px; color: #a5a3b2; font-size: 11px; }
-.status { color: #aaa8b6; font-size: 11px; }
-.status-online { color: #5fbd9b; }
-.metrics { display: flex; }
-.metric { flex: 1; padding: 15px; border-radius: 16px; background: #fff; box-shadow: 0 4px 16px rgba(49,43,91,.04); }.metric + .metric { margin-left: 10px; }
-.metric-primary { background: #f0eeff; }
-.metric-label { display: block; color: #8b899a; font-size: 11px; }
-.metric-value { display: block; margin: 7px 0 5px; color: #28253c; font-size: 23px; font-weight: 700; }
-.metric-note { color: #aaa8b6; font-size: 10px; }
+/* Light settings panel with pixel accents; the dark pixel look belongs to the card. */
+.page { min-height: 100vh; box-sizing: border-box; padding: 16px 16px 96px; background: #f5f6fa; color: #1d2133; font-size: 13px; }
+
+/* Stepped pixel outline: four offset shadows leave the corners notched. */
+.chip, .btn, .stat-card, .preview-card, .board-light, .goal-editor, .custom-input, .reset {
+  --edge: #d5d9e6;
+  box-shadow: 0 -2px 0 0 var(--edge), 0 2px 0 0 var(--edge), -2px 0 0 0 var(--edge), 2px 0 0 0 var(--edge);
+}
+
+.section-title { display: flex; align-items: center; margin: 22px 2px 12px; font-size: 15px; font-weight: 700; }
+.section-title:first-child { margin-top: 6px; }
+.section-note { margin-left: 8px; color: #8a93b2; font-size: 11px; font-weight: 400; }
+.hint { display: block; margin: 10px 2px 0; color: #8a93b2; font-size: 11px; }
+
+/* Pixel icons drawn with box-shadow; each shadow is one 2px pixel. */
+.px-icon { position: relative; width: 14px; height: 12px; margin-right: 8px; }
+.px-icon::before { content: ''; position: absolute; left: 0; top: 0; width: 2px; height: 2px; }
+.px-heart::before { color: #ff4d6d; box-shadow:
+  2px 0, 4px 0, 8px 0, 10px 0,
+  0 2px, 2px 2px, 4px 2px, 6px 2px, 8px 2px, 10px 2px, 12px 2px,
+  0 4px, 2px 4px, 4px 4px, 6px 4px, 8px 4px, 10px 4px, 12px 4px,
+  2px 6px, 4px 6px, 6px 6px, 8px 6px, 10px 6px,
+  4px 8px, 6px 8px, 8px 8px, 6px 10px; }
+.px-crown::before { color: #f2b632; box-shadow:
+  0 0, 6px 0, 12px 0,
+  0 2px, 2px 2px, 6px 2px, 10px 2px, 12px 2px,
+  0 4px, 2px 4px, 4px 4px, 6px 4px, 8px 4px, 10px 4px, 12px 4px,
+  0 6px, 2px 6px, 4px 6px, 6px 6px, 8px 6px, 10px 6px, 12px 6px; }
+.px-screen::before { color: #3a4468; box-shadow:
+  0 0, 2px 0, 4px 0, 6px 0, 8px 0, 10px 0, 12px 0,
+  0 2px, 12px 2px, 0 4px, 12px 4px, 0 6px, 12px 6px,
+  0 8px, 2px 8px, 4px 8px, 6px 8px, 8px 8px, 10px 8px, 12px 8px,
+  6px 10px; }
+
+/* Goal chips */
+.chips { display: flex; flex-wrap: wrap; margin: 0 2px; }
+.chip { margin: 0 10px 10px 0; padding: 7px 12px; background: #fff; color: #3a4468; font-size: 13px; font-weight: 600; }
+.chip-on { --edge: #d6344f; background: #ff4d6d; color: #fff; }
+.chip-small { margin: 0 0 0 10px; padding: 6px 12px; }
+.custom-goal { display: flex; align-items: center; margin: 2px 2px 0; }
+.custom-input { flex: 1; height: 32px; padding: 0 10px; background: #fff; font-size: 13px; }
+
+/* Card preview: a scaled-down, DOM-built copy of the canvas card. */
+.preview { display: flex; justify-content: center; padding: 18px 0 6px; border-radius: 4px; background: repeating-linear-gradient(45deg, #e9ebf2 0 6px, #eef0f6 6px 12px); }
+.preview-card { --edge: #3a4468; width: 210px; padding: 12px 10px 10px; background: #141826; color: #f2f3f7; }
+.preview-goal { display: flex; align-items: center; }
+.preview-heart { color: #ff4d6d; font-size: 14px; }
+.preview-cta { margin-left: 6px; font-size: 13px; font-weight: 700; }
+.preview-total { margin-left: auto; color: #ff4d6d; font-size: 20px; font-weight: 800; font-family: monospace; }
+.preview-sub { display: block; margin-top: 5px; color: #8a93b2; font-size: 10px; text-align: right; }
+.preview-board { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #2a3250; }
+
+.segments { display: flex; margin-top: 8px; padding: 2px; background: #2a3150; }
+.segment { flex: 1; height: 7px; margin-right: 2px; background: #1c2236; }
+.segment:last-child { margin-right: 0; }
+.segment-on { background: #ff4d6d; }
+.segments-large .segment { height: 12px; }
+
+/* Leaderboard rows, shared by the preview (dark) and the running panel (light). */
+.board-row { display: flex; align-items: center; height: 22px; margin-bottom: 4px; padding: 0 6px; background: #1a2033; font-size: 11px; }
+.board-row-top { height: 26px; }
+.board-row-first { outline: 2px solid #ffd166; outline-offset: -2px; background: #2a2518; }
+.medal { width: 16px; height: 16px; line-height: 16px; text-align: center; color: #141826; font-size: 10px; font-weight: 800; }
+.medal-1 { background: #ffd166; }
+.medal-2 { background: #c9d1e3; }
+.medal-3 { background: #e39a6b; }
+.rank { width: 16px; text-align: center; color: #8a93b2; font-size: 10px; font-weight: 700; font-family: monospace; }
+.avatar { width: 16px; height: 16px; margin: 0 8px; line-height: 16px; text-align: center; color: #fff; font-size: 10px; font-weight: 700; }
+.name { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.likes { margin-left: 6px; font-weight: 800; font-family: monospace; }
+.likes-first { color: #ffd166; }
+.cheer { margin-left: 6px; padding: 0 4px; border: 1px solid #ff4d6d; color: #ff4d6d; font-size: 9px; font-weight: 700; transform: rotate(-8deg); }
+.board-gap { text-align: center; color: #8a93b2; font-size: 11px; line-height: 10px; margin-bottom: 4px; }
+
+/* Running state */
+.status-bar { display: flex; align-items: center; padding: 8px 12px; background: #eceef4; font-size: 13px; font-weight: 600; }
+.status-dot { width: 8px; height: 8px; margin-right: 8px; background: #ff4d6d; }
+.status-dot-warn { background: #f2b632; }
+.status-time { margin-left: 8px; color: #3a4468; font-family: monospace; }
+.status-hidden { margin-left: auto; color: #8a93b2; font-size: 11px; font-weight: 400; }
+
+.stat-card { --edge: #3a4468; margin-top: 16px; padding: 14px; background: #141826; color: #f2f3f7; }
+.stat-head { display: flex; align-items: center; }
+.stat-label { font-size: 14px; font-weight: 700; }
+.stat-total { margin-left: auto; color: #ff4d6d; font-size: 30px; font-weight: 800; font-family: monospace; }
+.stat-bar { display: flex; align-items: center; }
+.stat-bar .segments { flex: 1; }
+.stat-percent { width: 44px; margin-top: 8px; text-align: right; color: #ff4d6d; font-size: 15px; font-weight: 800; font-family: monospace; }
+.stat-sub { display: block; margin-top: 8px; color: #8a93b2; font-size: 11px; }
+
+.goal-editor { margin-top: 14px; padding: 12px 10px; background: #fff; }
+
+.board-light { padding: 8px 8px 4px; background: #fff; }
+.board-light .board-row { background: #f5f6fa; color: #1d2133; }
+.board-light .board-row-first { background: #fff8e6; }
+.board-light .likes-first { color: #d6344f; }
+.board-empty { padding: 20px 0; text-align: center; color: #8a93b2; font-size: 12px; }
+.reset { margin-top: 18px; padding: 10px 0; background: #fff; color: #3a4468; text-align: center; font-size: 13px; }
+
+/* Footer buttons */
+.footer { position: fixed; left: 0; right: 0; bottom: 0; display: flex; padding: 12px 16px 20px; background: #f5f6fa; }
+.btn { flex: 1; height: 44px; line-height: 44px; text-align: center; font-size: 16px; font-weight: 700; }
+.btn + .btn { margin-left: 12px; }
+.btn-primary { --edge: #d6344f; background: #ff4d6d; color: #fff; }
+.btn-ghost { --edge: #1d2133; background: #fff; color: #1d2133; }
