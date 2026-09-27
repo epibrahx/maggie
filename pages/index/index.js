@@ -1,7 +1,9 @@
 // Host-facing panel: configure like goals, monitor real-time stats and leaderboard,
 // and control live card visibility and lifecycle.
 
-const CARD_RATIO = 88 / 150
+const CARD_DESIGN_WIDTH = 150
+const CARD_DESIGN_HEIGHT = 168
+const CARD_RATIO = CARD_DESIGN_HEIGHT / CARD_DESIGN_WIDTH
 const CARD_MAX_WIDTH = 150
 
 const GOAL_OPTIONS = [
@@ -69,14 +71,15 @@ Page({
     totalText: '0',
     target: 1000,
     targetText: '1千',
+    remainingText: '1千',
     percent: 0,
     litSegments: 0,
-    segments: Array.from({ length: 8 }, (_, i) => i),
+    segments: Array.from({ length: 10 }, (_, i) => i),
     level: 0,
     viewerCount: 0,
     board: [],
     sampleBoard: boardView(SAMPLE_BOARD),
-    sampleTop3: boardView(SAMPLE_BOARD.slice(0, 3)),
+    sampleTop4: boardView(SAMPLE_BOARD.slice(0, 4)),
     subscription: 'connecting',
   },
 
@@ -150,7 +153,7 @@ Page({
         this.timer = setInterval(() => this.tickElapsed(), 1000)
         this.setData({ running: true, cardHidden: false, elapsed: '00:00:00' })
         this.renderState(cardContext.getState())
-        tt.showToast({ title: '玩法已开启', icon: 'success' })
+        tt.showToast({ title: '毛玻璃互动卡已开启', icon: 'success' })
       },
       fail: error => {
         console.error('createLiveCard failed:', error)
@@ -177,7 +180,7 @@ Page({
     tt.showModal({
       title: '重置本场数据',
       content: '重置后点赞数及点赞榜将立即清零，确定清空吗？',
-      confirmColor: '#ff4d6d',
+      confirmColor: '#ff2d55',
       success: ({ confirm }) => {
         if (confirm && this.card) {
           this.card.resetSession()
@@ -191,7 +194,7 @@ Page({
     tt.showModal({
       title: '结束互动玩法',
       content: '确定结束并移除直播间卡片吗？本场数据将不会保留。',
-      confirmColor: '#ff4d6d',
+      confirmColor: '#ff2d55',
       success: ({ confirm }) => {
         if (confirm) {
           if (this.timer) clearInterval(this.timer)
@@ -211,8 +214,9 @@ Page({
       totalText: formatCount(state.totalLikes),
       target: state.target || 1000,
       targetText: formatCount(state.target),
+      remainingText: formatCount(state.remaining),
       percent: Math.floor(progress * 100),
-      litSegments: Math.round(progress * 8),
+      litSegments: Math.round(progress * 10),
       level: state.level || 0,
       viewerCount: state.viewerCount || 0,
       board: boardView(state.board),

@@ -1,6 +1,6 @@
 /* ================= PAGE CONTAINER & THEME ================= */
 page {
-  background-color: #f8fafc;
+  background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   color: #0f172a;
 }
@@ -28,7 +28,7 @@ page {
   height: 2px;
 }
 .px-heart::before {
-  color: #ff4d6d;
+  color: #ff2d55;
   box-shadow:
     2px 0, 4px 0, 8px 0, 10px 0,
     0 2px, 2px 2px, 4px 2px, 6px 2px, 8px 2px, 10px 2px, 12px 2px,
@@ -45,7 +45,7 @@ page {
     0 6px, 2px 6px, 4px 6px, 6px 6px, 8px 6px, 10px 6px, 12px 6px;
 }
 .px-target::before {
-  color: #ff4d6d;
+  color: #ff2d55;
   box-shadow:
     4px 0, 6px 0, 8px 0,
     2px 2px, 10px 2px,
@@ -92,15 +92,15 @@ page {
   display: block;
   margin-top: 4px;
   font-size: 12px;
-  color: #64748b;
+  color: #475569;
 }
 
-/* ================= CARD BOX (White Pixel Surface) ================= */
+/* ================= GLASS PANEL CONTAINER ================= */
 .card-box {
-  background: #ffffff;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 8px;
-  box-shadow: 0 2px 0 0 #e2e8f0;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1.5px solid rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
   padding: 16px;
   margin-bottom: 16px;
 }
@@ -117,9 +117,10 @@ page {
 .card-tag {
   margin-left: auto;
   font-size: 10px;
-  color: #64748b;
-  background: #f1f5f9;
-  padding: 3px 6px;
+  font-weight: 600;
+  color: #6366f1;
+  background: rgba(99, 102, 241, 0.08);
+  padding: 3px 7px;
   border-radius: 4px;
 }
 
@@ -134,10 +135,9 @@ page {
   display: flex;
   align-items: center;
   padding: 8px 14px;
-  background: #f8fafc;
+  background: rgba(248, 250, 252, 0.9);
   border: 1.5px solid #e2e8f0;
-  border-radius: 6px;
-  box-shadow: 0 1.5px 0 0 #e2e8f0;
+  border-radius: 8px;
   font-size: 13px;
   font-weight: 600;
   color: #334155;
@@ -145,18 +145,17 @@ page {
 }
 .chip-item:active {
   transform: translateY(1px);
-  box-shadow: 0 0.5px 0 0 #e2e8f0;
 }
 .chip-active {
   background: #fff1f2;
-  border-color: #ff4d6d;
-  color: #ff4d6d;
-  box-shadow: 0 1.5px 0 0 #ff4d6d;
+  border-color: #ff2d55;
+  color: #ff2d55;
+  box-shadow: 0 2px 8px rgba(255, 45, 85, 0.15);
 }
 .chip-tag {
   margin-left: 6px;
   font-size: 9px;
-  background: #ff4d6d;
+  background: #ff2d55;
   color: #ffffff;
   padding: 1px 4px;
   border-radius: 3px;
@@ -172,21 +171,21 @@ page {
 }
 .custom-input {
   flex: 1;
-  height: 36px;
+  height: 38px;
   padding: 0 12px;
-  background: #f8fafc;
+  background: rgba(248, 250, 252, 0.9);
   border: 1.5px solid #e2e8f0;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 13px;
   color: #0f172a;
 }
 .btn-custom {
-  height: 36px;
-  line-height: 36px;
-  padding: 0 14px;
+  height: 38px;
+  line-height: 38px;
+  padding: 0 16px;
   background: #0f172a;
   color: #ffffff;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 13px;
   font-weight: 600;
 }
@@ -199,7 +198,7 @@ page {
   align-items: flex-start;
   margin-top: 12px;
   padding: 8px 10px;
-  background: #f1f5f9;
+  background: rgba(241, 245, 249, 0.8);
   border-radius: 6px;
 }
 .tip-icon {
@@ -213,168 +212,228 @@ page {
   line-height: 1.4;
 }
 
-/* ================= LIVE CARD PREVIEW STAGE ================= */
-.preview-stage {
+/* ================= LIVE CARD PREVIEW WITH LIVE STREAM BACKDROP ================= */
+.preview-stage-live {
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px 0;
-  background: #f1f5f9;
-  border-radius: 6px;
-  border: 1px dashed #cbd5e1;
+  padding: 24px 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #1e1b4b;
 }
 
-/* 150x88 Scaled 1.4x (210px x 123.2px) for crisp preview */
-.mini-live-card {
+/* Simulated live stream backdrop */
+.stream-backdrop {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 80% 20%, #4338ca 0%, #1e1b4b 60%, #0f172a 100%);
+}
+.stream-circle {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(30px);
+  opacity: 0.6;
+}
+.stream-circle.c1 {
+  width: 140px;
+  height: 140px;
+  background: #ec4899;
+  top: -20px;
+  left: 10px;
+}
+.stream-circle.c2 {
+  width: 120px;
+  height: 120px;
+  background: #06b6d4;
+  bottom: -20px;
+  right: 20px;
+}
+.stream-badge {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* 150x168 Scaled 1.4x (210px x 235.2px) Frosted Glass Card */
+.frosted-live-card {
+  position: relative;
+  z-index: 2;
   width: 210px;
-  padding: 8px 10px;
-  background: #ffffff;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 6px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1.5px solid rgba(255, 255, 255, 0.95);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px 0 rgba(0, 0, 0, 0.25), 0 2px 6px rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
 }
 
-.mini-head {
+.glass-head {
   display: flex;
   align-items: center;
 }
-.mini-heart {
-  color: #ff4d6d;
-  font-size: 12px;
-  margin-right: 4px;
+.glass-heart {
+  color: #ff2d55;
+  font-size: 13px;
+  margin-right: 5px;
 }
-.mini-title {
-  font-size: 11px;
-  font-weight: 700;
+.glass-title {
+  font-size: 12px;
+  font-weight: 800;
   color: #0f172a;
 }
-.mini-total {
+.glass-total {
   margin-left: auto;
-  font-size: 13px;
-  font-weight: 800;
-  color: #ff4d6d;
+  font-size: 15px;
+  font-weight: 900;
+  color: #ff2d55;
   font-family: monospace;
 }
 
-.mini-bar {
+.glass-bar {
   display: flex;
   gap: 2px;
-  margin-top: 5px;
+  margin-top: 6px;
+  padding: 2px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
 }
-.mini-seg {
+.glass-seg {
   flex: 1;
-  height: 5px;
-  background: #f1f5f9;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.7);
   border-radius: 1px;
 }
-.mini-seg-on {
-  background: #ff4d6d;
+.glass-seg-on {
+  background: #ff2d55;
+  box-shadow: 0 0 4px rgba(255, 45, 85, 0.4);
 }
 
-.mini-meta {
+.glass-meta {
   display: flex;
   align-items: center;
-  margin-top: 4px;
-  font-size: 9px;
-  color: #94a3b8;
+  margin-top: 5px;
+  font-size: 9.5px;
 }
-.mini-tier {
-  color: #94a3b8;
-}
-.mini-percent {
-  margin-left: 6px;
-  color: #ff4d6d;
+.glass-tier-pill {
+  color: #ff2d55;
+  background: rgba(255, 45, 85, 0.1);
+  padding: 1px 4px;
+  border-radius: 3px;
   font-weight: 700;
 }
-.mini-target {
+.glass-percent {
+  margin-left: 6px;
+  color: #ff2d55;
+  font-weight: 800;
+}
+.glass-remaining {
   margin-left: auto;
+  color: #64748b;
+  font-size: 9px;
 }
 
-.mini-divider {
+.glass-divider {
   height: 1px;
-  background: #f1f5f9;
-  margin: 6px 0;
+  background: rgba(226, 232, 240, 0.8);
+  margin: 8px 0;
 }
 
-.mini-board-head {
+.glass-board-head {
   display: flex;
   align-items: center;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
-.mini-crown {
-  font-size: 10px;
+.glass-crown {
+  font-size: 11px;
   margin-right: 4px;
 }
-.mini-board-title {
-  font-size: 10px;
-  font-weight: 700;
-  color: #475569;
+.glass-board-title {
+  font-size: 11px;
+  font-weight: 800;
+  color: #334155;
 }
-.mini-count {
+.glass-count {
   margin-left: auto;
   font-size: 9px;
   color: #94a3b8;
 }
 
-.mini-rows {
+.glass-rows {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
 }
-.mini-row {
+.glass-row {
   display: flex;
   align-items: center;
-  height: 18px;
-  padding: 0 4px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 3px;
-  font-size: 9px;
+  height: 22px;
+  padding: 0 6px;
+  background: rgba(248, 250, 252, 0.8);
+  border: 1px solid rgba(226, 232, 240, 0.7);
+  border-radius: 4px;
+  font-size: 10px;
 }
-.mini-row-1 {
-  background: #fffbeb;
-  border-color: #fef08a;
+.glass-row-1 {
+  background: rgba(254, 243, 199, 0.9);
+  border-color: rgba(245, 158, 11, 0.4);
 }
-.mini-medal {
-  width: 12px;
-  height: 12px;
-  line-height: 12px;
+.glass-medal {
+  width: 14px;
+  height: 14px;
+  line-height: 14px;
   text-align: center;
-  font-size: 8px;
+  font-size: 9px;
   font-weight: 800;
   color: #ffffff;
-  border-radius: 2px;
+  border-radius: 3px;
 }
-.mini-medal-1 { background: #f59e0b; }
-.mini-medal-2 { background: #94a3b8; }
-.mini-medal-3 { background: #ea580c; }
-.mini-avatar {
-  width: 12px;
-  height: 12px;
-  line-height: 12px;
+.glass-medal-1 { background: #f59e0b; }
+.glass-medal-2 { background: #94a3b8; }
+.glass-medal-3 { background: #ea580c; }
+.glass-avatar {
+  width: 14px;
+  height: 14px;
+  line-height: 14px;
   text-align: center;
   color: #ffffff;
-  font-size: 8px;
+  font-size: 9px;
   font-weight: 700;
-  border-radius: 2px;
-  margin: 0 4px;
+  border-radius: 3px;
+  margin: 0 6px;
 }
-.mini-name {
+.glass-name {
   flex: 1;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
   color: #0f172a;
+  font-weight: 600;
 }
-.mini-likes {
-  margin-left: 4px;
-  font-weight: 700;
+.glass-likes {
+  margin-left: 6px;
+  font-weight: 800;
   font-family: monospace;
   color: #475569;
 }
-.mini-likes-gold {
-  color: #d97706;
+.glass-likes-gold {
+  color: #b45309;
+}
+
+.glass-tip {
+  margin-top: 7px;
+  text-align: center;
+  font-size: 9px;
+  color: #94a3b8;
 }
 
 /* ================= RUNNING STATE ================= */
@@ -382,11 +441,7 @@ page {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px;
-  background: #ffffff;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 8px;
-  box-shadow: 0 2px 0 0 #e2e8f0;
+  padding: 12px 16px;
   margin-bottom: 14px;
 }
 .status-left {
@@ -421,7 +476,7 @@ page {
 }
 .visibility-badge {
   font-size: 11px;
-  padding: 3px 8px;
+  padding: 4px 8px;
   border-radius: 4px;
   font-weight: 600;
 }
@@ -434,7 +489,7 @@ page {
   color: #64748b;
 }
 
-/* Stats Hero Card */
+/* Stats Card */
 .stats-card {
   padding: 18px 16px;
 }
@@ -454,7 +509,7 @@ page {
 }
 .btn-edit-goal {
   font-size: 12px;
-  color: #ff4d6d;
+  color: #ff2d55;
   font-weight: 600;
   padding: 4px 8px;
   background: #fff1f2;
@@ -467,9 +522,9 @@ page {
   margin-top: 10px;
 }
 .stats-hero-num {
-  font-size: 38px;
+  font-size: 40px;
   font-weight: 900;
-  color: #ff4d6d;
+  color: #ff2d55;
   font-family: monospace;
   line-height: 1;
 }
@@ -490,20 +545,24 @@ page {
   flex: 1;
   display: flex;
   gap: 3px;
+  background: rgba(0, 0, 0, 0.04);
+  padding: 3px;
+  border-radius: 4px;
 }
 .seg-block {
   flex: 1;
   height: 10px;
-  background: #f1f5f9;
+  background: rgba(255, 255, 255, 0.8);
   border-radius: 2px;
 }
 .seg-lit {
-  background: #ff4d6d;
+  background: #ff2d55;
+  box-shadow: 0 0 6px rgba(255, 45, 85, 0.4);
 }
 .progress-percent {
   font-size: 18px;
   font-weight: 800;
-  color: #ff4d6d;
+  color: #ff2d55;
   font-family: monospace;
   width: 48px;
   text-align: right;
@@ -529,7 +588,7 @@ page {
 .inline-editor {
   margin-top: 16px;
   padding-top: 14px;
-  border-top: 1px dashed #e2e8f0;
+  border-top: 1px dashed #cbd5e1;
 }
 .inline-editor-title {
   font-size: 12px;
@@ -548,36 +607,36 @@ page {
 .board-row {
   display: flex;
   align-items: center;
-  height: 34px;
+  height: 38px;
   margin-bottom: 6px;
   padding: 0 10px;
-  background: #f8fafc;
+  background: rgba(248, 250, 252, 0.9);
   border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  font-size: 12px;
+  border-radius: 8px;
+  font-size: 13px;
 }
 .board-row-top {
-  height: 38px;
+  height: 42px;
 }
 .board-row-gold {
-  background: #fffbeb;
-  border-color: #fef08a;
+  background: rgba(254, 243, 199, 0.9);
+  border-color: rgba(245, 158, 11, 0.4);
 }
 .medal {
-  width: 18px;
-  height: 18px;
-  line-height: 18px;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
   text-align: center;
   color: #ffffff;
   font-size: 11px;
   font-weight: 800;
-  border-radius: 3px;
+  border-radius: 4px;
 }
 .medal-1 { background: #f59e0b; }
 .medal-2 { background: #94a3b8; }
 .medal-3 { background: #ea580c; }
 .rank-num {
-  width: 18px;
+  width: 20px;
   text-align: center;
   color: #94a3b8;
   font-size: 12px;
@@ -585,9 +644,9 @@ page {
   font-family: monospace;
 }
 .avatar-block {
-  width: 22px;
-  height: 22px;
-  line-height: 22px;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
   text-align: center;
   color: #ffffff;
   font-size: 11px;
@@ -611,14 +670,14 @@ page {
   font-size: 13px;
 }
 .likes-gold {
-  color: #d97706;
+  color: #b45309;
 }
 .cheer-badge {
   margin-left: 6px;
   padding: 1px 6px;
   background: #fff1f2;
-  border: 1px solid #ff4d6d;
-  color: #ff4d6d;
+  border: 1px solid #ff2d55;
+  color: #ff2d55;
   font-size: 10px;
   font-weight: 700;
   border-radius: 3px;
@@ -657,9 +716,9 @@ page {
   margin-top: 14px;
   padding: 10px 0;
   text-align: center;
-  background: #f8fafc;
+  background: rgba(248, 250, 252, 0.8);
   border: 1px dashed #cbd5e1;
-  border-radius: 6px;
+  border-radius: 8px;
 }
 .reset-text {
   font-size: 12px;
@@ -679,18 +738,18 @@ page {
   display: flex;
   gap: 12px;
   padding: 12px 16px env(safe-area-inset-bottom, 20px);
-  background: #ffffff;
-  border-top: 1px solid #e2e8f0;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.03);
+  background: rgba(255, 255, 255, 0.92);
+  border-top: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.04);
 }
 
 .btn-pixel {
   flex: 1;
-  height: 46px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 15px;
   font-weight: 700;
   transition: all 0.15s ease;
@@ -700,23 +759,18 @@ page {
 }
 
 .btn-primary {
-  background: #ff4d6d;
+  background: linear-gradient(135deg, #ff2d55 0%, #ff5277 100%);
   color: #ffffff;
-  box-shadow: 0 2px 0 0 #d6344f;
-}
-.btn-primary:active {
-  box-shadow: 0 1px 0 0 #d6344f;
+  box-shadow: 0 4px 12px rgba(255, 45, 85, 0.3);
 }
 
 .btn-ghost {
-  background: #f8fafc;
+  background: rgba(248, 250, 252, 0.9);
   color: #0f172a;
   border: 1.5px solid #cbd5e1;
-  box-shadow: 0 2px 0 0 #cbd5e1;
 }
 
 .btn-danger {
   background: #0f172a;
   color: #ffffff;
-  box-shadow: 0 2px 0 0 #000000;
 }

@@ -1,35 +1,56 @@
-// Audience-facing live card: 150px × 88px lightweight pixel-art live widget.
-// Compliant with Douyin Live Interactive Tools design specifications (≤88px height, high readability, light theme).
+// Audience-facing Live Card: Frosted Glassmorphism + Lightweight Pixel Art Widget
+// Aspect Ratio: 150px × 168px (flexible height, translucent glass backdrop, high legibility)
 
 const DESIGN_WIDTH = 150
-const DESIGN_HEIGHT = 88
-const TOP_ROWS = 3
+const DESIGN_HEIGHT = 168
+const TOP_ROWS = 4
 const DRAW_THROTTLE_MS = 200
 const MAX_SEEN_MESSAGES = 2000
 const AUTO_TIERS = [1000, 10000, 100000, 500000, 1000000]
 
-const COLORS = {
-  bg: '#ffffff',
-  border: '#e2e8f0',
-  inner: '#f8fafc',
-  text: '#0f172a',
-  sub: '#475569',
-  muted: '#94a3b8',
-  accent: '#ff4d6d',
+const GLASS_THEME = {
+  // Translucent frosted glass layers
+  bgTop: 'rgba(255, 255, 255, 0.90)',
+  bgBottom: 'rgba(245, 247, 250, 0.78)',
+  borderLight: 'rgba(255, 255, 255, 0.95)',
+  borderDark: 'rgba(203, 213, 225, 0.55)',
+  innerBorder: 'rgba(255, 255, 255, 0.60)',
+  divider: 'rgba(226, 232, 240, 0.70)',
+  
+  // High-contrast modern typography
+  textPrimary: '#0f172a',
+  textSecondary: '#334155',
+  textMuted: '#64748b',
+  textSub: '#94a3b8',
+  
+  // Accents & energy
+  accent: '#ff2d55',
   accentLight: '#ff758f',
-  track: '#f1f5f9',
-  gold: '#f59e0b',
-  goldLight: '#fffbeb',
-  goldBorder: '#fde68a',
-  silver: '#94a3b8',
-  silverLight: '#f8fafc',
-  silverBorder: '#e2e8f0',
-  bronze: '#ea580c',
-  bronzeLight: '#fff7ed',
-  bronzeBorder: '#fed7aa',
-  rowBg: '#f8fafc',
-  rowBorder: '#e2e8f0',
-  divider: '#f1f5f9',
+  accentGlass: 'rgba(255, 45, 85, 0.10)',
+  accentBorder: 'rgba(255, 45, 85, 0.25)',
+  
+  // Track & capsules
+  trackBg: 'rgba(0, 0, 0, 0.05)',
+  trackBorder: 'rgba(0, 0, 0, 0.06)',
+  
+  // Medals & rankings
+  goldBg: 'rgba(254, 243, 199, 0.88)',
+  goldBorder: 'rgba(245, 158, 11, 0.40)',
+  goldBadge: '#f59e0b',
+  goldText: '#b45309',
+  
+  silverBg: 'rgba(248, 250, 252, 0.75)',
+  silverBorder: 'rgba(203, 213, 225, 0.60)',
+  silverBadge: '#94a3b8',
+  silverText: '#475569',
+  
+  bronzeBg: 'rgba(255, 237, 213, 0.82)',
+  bronzeBorder: 'rgba(249, 115, 22, 0.35)',
+  bronzeBadge: '#ea580c',
+  bronzeText: '#c2410c',
+  
+  cheerBg: 'rgba(255, 241, 242, 0.82)',
+  cheerBorder: 'rgba(255, 45, 85, 0.30)',
 }
 
 const AVATAR_COLORS = [
@@ -37,13 +58,7 @@ const AVATAR_COLORS = [
   '#3b82f6', '#06b6d4', '#10b981', '#f59e0b',
 ]
 
-const MEDAL_CONFIG = [
-  { bg: COLORS.gold, light: COLORS.goldLight, border: COLORS.goldBorder, text: '#ffffff', scoreColor: '#d97706' },
-  { bg: COLORS.silver, light: COLORS.silverLight, border: COLORS.silverBorder, text: '#ffffff', scoreColor: '#475569' },
-  { bg: COLORS.bronze, light: COLORS.bronzeLight, border: COLORS.bronzeBorder, text: '#ffffff', scoreColor: '#ea580c' },
-]
-
-// 4x6 pixel font glyphs for ultra-crisp numbers and symbols
+// 4x6 pixel font glyphs
 const GLYPHS = {
   0: ['1111', '1001', '1001', '1001', '1001', '1111'],
   1: ['0100', '1100', '0100', '0100', '0100', '1110'],
@@ -99,13 +114,18 @@ function trimDecimal(value) {
 
 function goalFor(mode, total) {
   if (mode !== 'auto') {
-    return { target: mode, level: total >= mode ? 1 : 0 }
+    const remaining = Math.max(0, mode - total)
+    return { target: mode, level: total >= mode ? 1 : 0, remaining }
   }
   const tierIndex = AUTO_TIERS.findIndex(tier => total < tier)
-  if (tierIndex >= 0) return { target: AUTO_TIERS[tierIndex], level: tierIndex }
+  if (tierIndex >= 0) {
+    const target = AUTO_TIERS[tierIndex]
+    return { target, level: tierIndex, remaining: target - total }
+  }
   const last = AUTO_TIERS[AUTO_TIERS.length - 1]
   const extra = Math.floor((total - last) / 1000000) + 1
-  return { target: last + extra * 1000000, level: AUTO_TIERS.length + extra - 1 }
+  const target = last + extra * 1000000
+  return { target, level: AUTO_TIERS.length + extra - 1, remaining: target - total }
 }
 
 function rankViewers(viewers) {
@@ -129,7 +149,7 @@ function colorForId(id) {
 }
 
 Card({
-  // ---- Panel Interop API ----
+  // ---- Host Panel Interop ----
 
   getState() {
     const ranked = rankViewers(this.viewers)
@@ -139,11 +159,12 @@ Card({
       goalMode: this.goalMode,
       target: goal.target,
       level: goal.level,
+      remaining: goal.remaining,
       viewerCount: ranked.length,
       board: boardFor(ranked, 6).map(({ id, name, likes, rank, isLast, gap }) => ({
         id, name, likes, rank, isLast: !!isLast, gap: !!gap,
       })),
-      top3: ranked.slice(0, 3).map((v, i) => ({ ...v, rank: i + 1 })),
+      top4: ranked.slice(0, 4).map((v, i) => ({ ...v, rank: i + 1 })),
       subscription: this.subscription,
     }
   },
@@ -166,8 +187,6 @@ Card({
     messages.forEach(message => this.applyLike(message))
     this.scheduleFlush()
   },
-
-  // ---- Message handling ----
 
   applyLike(message) {
     const likes = Number(message && message.like_num)
@@ -216,7 +235,7 @@ Card({
     })
   },
 
-  // ---- Rendering Engine ----
+  // ---- Canvas Glass Rendering Engine ----
 
   draw() {
     const { ctx } = this
@@ -228,185 +247,231 @@ Card({
     ctx.clearRect(0, 0, DESIGN_WIDTH, height)
     ctx.textBaseline = 'top'
 
-    this.drawFrame(height)
-    this.drawGoal(state)
-    this.drawBoard(state, height)
+    this.drawGlassFrame(DESIGN_WIDTH, height)
+    this.drawGoalPod(state)
+    this.drawBoardPod(state, height)
   },
 
-  // Lightweight pixel card frame with 3px stepped corners
-  drawFrame(height) {
+  // Multi-layer frosted glass backdrop with stepped pixel corners
+  drawGlassFrame(w, h) {
     const { ctx } = this
-    const w = DESIGN_WIDTH
-    const corner = 3
+    const corner = 4
 
-    // Outer border
-    ctx.fillStyle = COLORS.border
-    ctx.fillRect(corner, 0, w - corner * 2, height)
-    ctx.fillRect(0, corner, w, height - corner * 2)
-    // Corner pixels
+    // 1. Translucent backdrop fill with gradient
+    const grad = ctx.createLinearGradient(0, 0, 0, h)
+    grad.addColorStop(0, GLASS_THEME.bgTop)
+    grad.addColorStop(1, GLASS_THEME.bgBottom)
+
+    ctx.fillStyle = grad
+    ctx.fillRect(corner, 0, w - corner * 2, h)
+    ctx.fillRect(0, corner, w, h - corner * 2)
+
+    // Corner stepped fills
     for (let i = 0; i < corner; i++) {
       ctx.fillRect(i, corner - 1 - i, 1, 1)
       ctx.fillRect(w - 1 - i, corner - 1 - i, 1, 1)
-      ctx.fillRect(i, height - corner + i, 1, 1)
-      ctx.fillRect(w - 1 - i, height - corner + i, 1, 1)
+      ctx.fillRect(i, h - corner + i, 1, 1)
+      ctx.fillRect(w - 1 - i, h - corner + i, 1, 1)
     }
 
-    // Inner pure white surface
-    ctx.fillStyle = COLORS.bg
-    ctx.fillRect(corner, 1, w - corner * 2, height - 2)
-    ctx.fillRect(1, corner, w - 2, height - corner * 2)
-    for (let i = 0; i < corner - 1; i++) {
-      ctx.fillRect(i + 1, corner - 1 - i, 1, 1)
-      ctx.fillRect(w - 2 - i, corner - 1 - i, 1, 1)
-      ctx.fillRect(i + 1, height - corner + i, 1, 1)
-      ctx.fillRect(w - 2 - i, height - corner + i, 1, 1)
-    }
+    // 2. Glass Rim Highlights
+    ctx.fillStyle = GLASS_THEME.borderLight
+    ctx.fillRect(corner, 0, w - corner * 2, 1) // top highlight
+    ctx.fillRect(0, corner, 1, h - corner * 2) // left highlight
+
+    ctx.fillStyle = GLASS_THEME.borderDark
+    ctx.fillRect(corner, h - 1, w - corner * 2, 1) // bottom edge
+    ctx.fillRect(w - 1, corner, 1, h - corner * 2) // right edge
   },
 
-  // Top goal section: 0 to 27px
-  drawGoal(state) {
+  // Top Section: Like Goal, Progress Capsule & Milestones (y: 6 ~ 46)
+  drawGoalPod(state) {
     const { ctx } = this
     const progress = Math.min(1, state.totalLikes / state.target)
 
-    // Pixel Heart icon
-    drawBitmap(ctx, HEART, 6, 4.5, 1, COLORS.accent)
+    // Heart Icon with subtle glow
+    drawBitmap(ctx, HEART, 7, 7.5, 1, GLASS_THEME.accent)
 
-    // Title: "点赞目标"
-    ctx.fillStyle = COLORS.text
-    ctx.font = 'bold 8px sans-serif'
+    // Goal Header Title
+    ctx.fillStyle = GLASS_THEME.textPrimary
+    ctx.font = 'bold 8.5px sans-serif'
     ctx.textAlign = 'left'
-    ctx.fillText('点赞目标', 15.5, 3.5)
+    ctx.fillText('点赞目标', 17, 6.5)
 
-    // Total likes formatted on top right
-    drawNumber(ctx, formatCount(state.totalLikes), 144, 3, 1.4, COLORS.accent, 'right')
+    // Prominent Total Likes Count (Top Right)
+    drawNumber(ctx, formatCount(state.totalLikes), 143, 6, 1.4, GLASS_THEME.accent, 'right')
 
-    // Segmented progress bar (8 blocks, total 96px width)
-    const barX = 6
-    const barY = 14
-    const totalSegments = 8
-    const segWidth = 10.5
-    const segGap = 1.5
+    // Capsule Progress Bar (10 Segmented Glow Blocks)
+    const barX = 7
+    const barY = 19
+    const totalSegments = 10
+    const segWidth = 8.5
+    const segGap = 1.3
+    const barW = totalSegments * (segWidth + segGap) - segGap
     const lit = Math.round(progress * totalSegments)
+
+    // Track capsule background
+    ctx.fillStyle = GLASS_THEME.trackBg
+    ctx.fillRect(barX - 1, barY - 1, barW + 2, 7)
 
     for (let i = 0; i < totalSegments; i++) {
       const sx = barX + i * (segWidth + segGap)
       const isLit = i < lit
-      ctx.fillStyle = isLit ? COLORS.accent : COLORS.track
-      ctx.fillRect(sx, barY, segWidth, 4.5)
+      ctx.fillStyle = isLit ? GLASS_THEME.accent : 'rgba(255, 255, 255, 0.7)'
+      ctx.fillRect(sx, barY, segWidth, 5)
       if (isLit) {
-        // Highlight notch
-        ctx.fillStyle = COLORS.accentLight
-        ctx.fillRect(sx, barY, segWidth, 1)
+        ctx.fillStyle = GLASS_THEME.accentLight
+        ctx.fillRect(sx, barY, segWidth, 1) // top glass sheen
       }
     }
 
-    // Percent on right of progress bar
-    drawNumber(ctx, `${Math.floor(progress * 100)}%`, 144, 13.5, 1.1, COLORS.accent, 'right')
+    // Progress percentage on the right of bar
+    drawNumber(ctx, `${Math.floor(progress * 100)}%`, 143, 18.5, 1.1, GLASS_THEME.accent, 'right')
 
-    // Sub note: Milestone info & target
-    ctx.fillStyle = COLORS.muted
+    // Milestone Sub-info (y: 29)
+    // Left tier pill
+    const tierText = state.goalMode === 'auto' ? `已达${state.level}档` : '全员冲榜'
+    ctx.fillStyle = GLASS_THEME.accentGlass
+    ctx.fillRect(7, 28, 30, 9)
+    ctx.fillStyle = GLASS_THEME.accent
+    ctx.font = 'bold 6.5px sans-serif'
+    ctx.textAlign = 'center'
+    ctx.fillText(tierText, 22, 29.5)
+
+    // Right remaining info
+    ctx.fillStyle = GLASS_THEME.textMuted
     ctx.font = '6.5px sans-serif'
-    ctx.textAlign = 'left'
-    const tierNote = state.goalMode === 'auto' ? `已达${state.level}档` : '全员冲榜'
-    ctx.fillText(tierNote, 6, 20.5)
-
     ctx.textAlign = 'right'
-    ctx.fillText(`目标 ${formatCount(state.target)}`, 144, 20.5)
+    const subText = state.remaining > 0 ? `还差 ${formatCount(state.remaining)} 升级` : `目标 ${formatCount(state.target)} 已达成`
+    ctx.fillText(subText, 143, 29.5)
 
-    // Thin separator line
-    ctx.fillStyle = COLORS.divider
-    ctx.fillRect(6, 28, 138, 1)
+    // Frosted Divider Line
+    ctx.fillStyle = GLASS_THEME.divider
+    ctx.fillRect(7, 42, 136, 1)
   },
 
-  // Bottom leaderboard section: 29px to 86px
-  drawBoard(state, height) {
+  // Bottom Section: Live Leaderboard Pod (y: 46 ~ 168)
+  drawBoardPod(state, height) {
     const { ctx } = this
 
-    // Crown icon
-    drawBitmap(ctx, CROWN, 6, 31, 1, COLORS.gold)
+    // Crown Icon
+    drawBitmap(ctx, CROWN, 7, 47.5, 1, GLASS_THEME.goldBadge)
 
-    // Subtitle: "点赞榜"
-    ctx.fillStyle = COLORS.sub
-    ctx.font = 'bold 7px sans-serif'
+    // Subtitle: "贡献榜"
+    ctx.fillStyle = GLASS_THEME.textSecondary
+    ctx.font = 'bold 8px sans-serif'
     ctx.textAlign = 'left'
-    ctx.fillText('点赞榜', 15.5, 30.5)
+    ctx.fillText('贡献榜', 17, 46.5)
 
-    // Participant count on top right
-    ctx.fillStyle = COLORS.muted
+    // Right participant counter
+    ctx.fillStyle = GLASS_THEME.textSub
     ctx.font = '6.5px sans-serif'
     ctx.textAlign = 'right'
     const countNote = state.viewerCount > 0 ? `${state.viewerCount}人参与` : '虚位以待'
-    ctx.fillText(countNote, 144, 30.5)
+    ctx.fillText(countNote, 143, 46.5)
 
-    const list = state.top3 || []
+    const list = state.top4 || []
 
     if (list.length === 0) {
-      // Clean empty state
-      drawBitmap(ctx, SPARKLE, 73, 46, 1, COLORS.gold)
-      ctx.fillStyle = COLORS.muted
-      ctx.font = '7px sans-serif'
+      // Empty state
+      drawBitmap(ctx, SPARKLE, 73, 85, 1.2, GLASS_THEME.goldBadge)
+      ctx.fillStyle = GLASS_THEME.textMuted
+      ctx.font = 'bold 7.5px sans-serif'
       ctx.textAlign = 'center'
-      ctx.fillText('点赞即可上榜 冲锋第1名✨', DESIGN_WIDTH / 2, 58)
+      ctx.fillText('点赞上榜 · 成为第 1 名✨', DESIGN_WIDTH / 2, 102)
+      ctx.fillStyle = GLASS_THEME.textSub
+      ctx.font = '6.5px sans-serif'
+      ctx.fillText('轻点屏幕为全场助力', DESIGN_WIDTH / 2, 116)
       return
     }
 
-    // Render up to 3 rows
-    const rowYList = [39, 54, 69]
+    // 4 Leaderboard Rows (y: 58, 80, 102, 124)
+    const rowYList = [58, 79.5, 101, 122.5]
     for (let i = 0; i < TOP_ROWS; i++) {
       const y = rowYList[i]
       if (i < list.length) {
-        this.drawRow(list[i], y, i)
+        this.drawGlassRow(list[i], y, i)
       } else {
-        this.drawEmptyRow(y, i + 1)
+        this.drawEmptyGlassRow(y, i + 1)
       }
     }
+
+    // Bottom prompt tip
+    ctx.fillStyle = GLASS_THEME.textSub
+    ctx.font = '6.5px sans-serif'
+    ctx.textAlign = 'center'
+    ctx.fillText('轻触屏幕点赞 · 实时冲榜 ✨', DESIGN_WIDTH / 2, 149)
   },
 
-  drawRow(row, y, index) {
+  drawGlassRow(row, y, index) {
     const { ctx } = this
-    const h = 13.5
-    const medal = MEDAL_CONFIG[index] || MEDAL_CONFIG[1]
+    const h = 18
+    const isTop1 = index === 0
+    const isTop2 = index === 1
+    const isTop3 = index === 2
 
-    // Row container
-    ctx.fillStyle = medal.light
-    ctx.fillRect(6, y, 138, h)
-    ctx.fillStyle = medal.border
-    ctx.fillRect(6, y, 138, 1)
-    ctx.fillRect(6, y + h - 1, 138, 1)
-    ctx.fillRect(6, y, 1, h)
-    ctx.fillRect(143, y, 1, h)
+    let rowBg = GLASS_THEME.silverBg
+    let rowBorder = GLASS_THEME.silverBorder
+    let badgeBg = GLASS_THEME.silverBadge
+    let scoreColor = GLASS_THEME.silverText
 
-    // Medal rank badge (9x9px)
-    ctx.fillStyle = medal.bg
-    ctx.fillRect(8, y + 2, 9, 9)
-    drawNumber(ctx, String(row.rank), 12.5, y + 2.5, 0.8, medal.text, 'center')
+    if (isTop1) {
+      rowBg = GLASS_THEME.goldBg
+      rowBorder = GLASS_THEME.goldBorder
+      badgeBg = GLASS_THEME.goldBadge
+      scoreColor = GLASS_THEME.goldText
+    } else if (isTop3) {
+      rowBg = GLASS_THEME.bronzeBg
+      rowBorder = GLASS_THEME.bronzeBorder
+      badgeBg = GLASS_THEME.bronzeBadge
+      scoreColor = GLASS_THEME.bronzeText
+    } else if (row.isLast) {
+      rowBg = GLASS_THEME.cheerBg
+      rowBorder = GLASS_THEME.cheerBorder
+      badgeBg = GLASS_THEME.accent
+      scoreColor = GLASS_THEME.accent
+    }
 
-    // Avatar (9x9px pastel block + initial)
-    this.drawAvatar(row, 19, y + 2, 9, 6.5)
+    // Glass row pill
+    ctx.fillStyle = rowBg
+    ctx.fillRect(7, y, 136, h)
+    ctx.fillStyle = rowBorder
+    ctx.fillRect(7, y, 136, 1)
+    ctx.fillRect(7, y + h - 1, 136, 1)
+    ctx.fillRect(7, y, 1, h)
+    ctx.fillRect(142, y, 1, h)
 
-    // Viewer Name
-    this.drawName(row.name, 30, y + 2.5, 7.5, 62)
+    // Rank badge (11x11px)
+    ctx.fillStyle = badgeBg
+    ctx.fillRect(10, y + 3.5, 11, 11)
+    drawNumber(ctx, String(row.rank), 15.5, y + 4.5, 0.9, '#ffffff', 'center')
+
+    // Avatar (11x11px pastel block + initial)
+    this.drawAvatar(row, 24, y + 3.5, 11, 7.5)
+
+    // Name (Clean, legible font)
+    this.drawName(row.name, 38, y + 4.5, 8, 52)
 
     // Likes count
-    drawNumber(ctx, formatCount(row.likes), 141, y + 2.5, 1.1, medal.scoreColor, 'right')
+    drawNumber(ctx, formatCount(row.likes), 139, y + 4.5, 1.2, scoreColor, 'right')
   },
 
-  drawEmptyRow(y, rank) {
+  drawEmptyGlassRow(y, rank) {
     const { ctx } = this
-    const h = 13.5
+    const h = 18
 
-    ctx.fillStyle = COLORS.inner
-    ctx.fillRect(6, y, 138, h)
-    ctx.fillStyle = COLORS.border
-    ctx.fillRect(6, y, 138, 1)
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.40)'
+    ctx.fillRect(7, y, 136, h)
+    ctx.fillStyle = 'rgba(226, 232, 240, 0.40)'
+    ctx.fillRect(7, y, 136, 1)
 
-    // Rank number in muted color
-    drawNumber(ctx, String(rank), 12.5, y + 2.5, 0.8, COLORS.muted, 'center')
+    // Muted rank
+    drawNumber(ctx, String(rank), 15.5, y + 4.5, 0.9, GLASS_THEME.textSub, 'center')
 
-    ctx.fillStyle = COLORS.muted
-    ctx.font = '6.5px sans-serif'
+    ctx.fillStyle = GLASS_THEME.textSub
+    ctx.font = '7px sans-serif'
     ctx.textAlign = 'left'
-    ctx.fillText('虚位以待 · 冲榜中~', 30, y + 3)
+    ctx.fillText('虚位以待 · 冲榜中~', 38, y + 5)
   },
 
   drawAvatar(row, x, y, size, fontSize) {
@@ -423,8 +488,8 @@ Card({
 
   drawName(name, x, y, fontSize, maxWidth) {
     const { ctx } = this
-    ctx.fillStyle = COLORS.text
-    ctx.font = `${fontSize}px sans-serif`
+    ctx.fillStyle = GLASS_THEME.textPrimary
+    ctx.font = `600 ${fontSize}px sans-serif`
     ctx.textAlign = 'left'
     let text = name || '神秘观众'
     if (ctx.measureText(text).width > maxWidth) {
@@ -438,8 +503,8 @@ Card({
   created(options) {
     this.canvas = this.getCanvas()
     this.ctx = this.canvas.getContext('2d')
-    this.cardWidth = Number(options && options.width) || this.canvas.clientWidth || 150
-    this.cardHeight = Number(options && options.height) || this.canvas.clientHeight || 88
+    this.cardWidth = Number(options && options.width) || this.canvas.clientWidth || DESIGN_WIDTH
+    this.cardHeight = Number(options && options.height) || this.canvas.clientHeight || DESIGN_HEIGHT
     this.pixelRatio = Math.min(3, tt.getSystemInfoSync().pixelRatio || 2)
     this.canvas.width = Math.round(this.cardWidth * this.pixelRatio)
     this.canvas.height = Math.round(this.cardHeight * this.pixelRatio)
@@ -460,7 +525,6 @@ function drawBitmap(ctx, rows, x, y, px, color) {
   })
 }
 
-// Draws digits, '.', and '%' as pixel glyphs; other characters (万/亿) use system font
 function drawNumber(ctx, text, x, y, px, color, align) {
   const unitSize = 4 * px + 0.5
   const chars = Array.from(String(text || '0'))

@@ -29,13 +29,13 @@
     <view class="brand-hero">
       <view class="brand-badge">
         <view class="px-icon px-heart"></view>
-        <text class="brand-title">喜鹊 · 直播互动</text>
+        <text class="brand-title">喜鹊 · 毛玻璃互动卡</text>
       </view>
-      <text class="brand-subtitle">点赞目标与实时贡献榜，点燃直播间互动氛围</text>
+      <text class="brand-subtitle">半透明毛玻璃微卡 · 点赞目标与实时贡献榜</text>
     </view>
 
     <!-- Section 1: Goal Config -->
-    <view class="card-box">
+    <view class="card-box glass-panel">
       <view class="card-header">
         <view class="px-icon px-target"></view>
         <text class="card-title">点赞目标设定</text>
@@ -66,52 +66,64 @@
       </view>
     </view>
 
-    <!-- Section 2: Live Card Preview -->
-    <view class="card-box">
+    <!-- Section 2: Live Card Preview (With Live Video Simulation Backdrop) -->
+    <view class="card-box glass-panel">
       <view class="card-header">
         <view class="px-icon px-screen"></view>
-        <text class="card-title">直播间观众端卡片预览</text>
-        <text class="card-tag">150×88 规范尺寸</text>
+        <text class="card-title">观众端毛玻璃卡片预览</text>
+        <text class="card-tag">150×168 半透明</text>
       </view>
 
-      <view class="preview-stage">
-        <!-- Live Card Mockup (150x88 standard proportion) -->
-        <view class="mini-live-card">
+      <!-- Preview Stage with Live Stream Simulation Background -->
+      <view class="preview-stage-live">
+        <view class="stream-backdrop">
+          <view class="stream-circle c1"></view>
+          <view class="stream-circle c2"></view>
+          <view class="stream-badge">直播画面模拟</view>
+        </view>
+
+        <!-- Frosted Glass Live Card Mockup -->
+        <view class="frosted-live-card">
           <!-- Top Goal Area -->
-          <view class="mini-goal-area">
-            <view class="mini-head">
-              <view class="mini-heart">♥</view>
-              <text class="mini-title">点赞目标</text>
-              <text class="mini-total">5.2万</text>
+          <view class="glass-goal-area">
+            <view class="glass-head">
+              <view class="glass-heart">♥</view>
+              <text class="glass-title">点赞目标</text>
+              <text class="glass-total">5.2万</text>
             </view>
-            <view class="mini-bar">
-              <view tt:for="{{segments}}" tt:key="*this" class="mini-seg {{item < 5 ? 'mini-seg-on' : ''}}"></view>
+            
+            <view class="glass-bar">
+              <view tt:for="{{segments}}" tt:key="*this" class="glass-seg {{item < 6 ? 'glass-seg-on' : ''}}"></view>
             </view>
-            <view class="mini-meta">
-              <text class="mini-tier">已达2档</text>
-              <text class="mini-percent">52%</text>
-              <text class="mini-target">目标 10万</text>
+            
+            <view class="glass-meta">
+              <text class="glass-tier-pill">已达2档</text>
+              <text class="glass-percent">52%</text>
+              <text class="glass-remaining">还差 4.8万 升级</text>
             </view>
           </view>
 
-          <!-- Divider -->
-          <view class="mini-divider"></view>
+          <!-- Frosted Divider -->
+          <view class="glass-divider"></view>
 
           <!-- Bottom Board Area -->
-          <view class="mini-board-area">
-            <view class="mini-board-head">
-              <view class="mini-crown">👑</view>
-              <text class="mini-board-title">点赞榜</text>
-              <text class="mini-count">128人参与</text>
+          <view class="glass-board-area">
+            <view class="glass-board-head">
+              <view class="glass-crown">👑</view>
+              <text class="glass-board-title">贡献榜</text>
+              <text class="glass-count">128人参与</text>
             </view>
-            <view class="mini-rows">
-              <view tt:for="{{sampleTop3}}" tt:key="id" class="mini-row mini-row-{{item.medal}}">
-                <view class="mini-medal mini-medal-{{item.medal}}">{{item.rank}}</view>
-                <view class="mini-avatar" style="background: {{item.color}}">{{item.initial}}</view>
-                <text class="mini-name">{{item.name}}</text>
-                <text class="mini-likes {{item.medal === 1 ? 'mini-likes-gold' : ''}}">{{item.likesText}}</text>
+            
+            <view class="glass-rows">
+              <view tt:for="{{sampleTop4}}" tt:key="id" class="glass-row glass-row-{{item.medal}}">
+                <view class="glass-medal glass-medal-{{item.medal}}">{{item.rank}}</view>
+                <view class="glass-avatar" style="background: {{item.color}}">{{item.initial}}</view>
+                <text class="glass-name">{{item.name}}</text>
+                <text class="glass-likes {{item.medal === 1 ? 'glass-likes-gold' : ''}}">{{item.likesText}}</text>
               </view>
             </view>
+
+            <view class="glass-tip">轻触屏幕点赞 · 实时冲榜 ✨</view>
           </view>
         </view>
       </view>
@@ -121,7 +133,7 @@
   <!-- ================= RUNNING STATE ================= -->
   <block tt:else>
     <!-- Status Header Bar -->
-    <view class="status-bar">
+    <view class="status-bar glass-panel">
       <view class="status-left">
         <view class="pulse-dot {{subscription === 'connected' ? 'dot-online' : 'dot-warn'}}"></view>
         <text class="status-state">{{subscription === 'connected' ? '互动进行中' : (subscription === 'failed' ? '连接异常' : '连接中')}}</text>
@@ -135,7 +147,7 @@
     </view>
 
     <!-- Live Goal Stats Card -->
-    <view class="card-box stats-card">
+    <view class="card-box glass-panel stats-card">
       <view class="stats-top">
         <view class="stats-label-group">
           <view class="px-icon px-heart"></view>
@@ -159,7 +171,7 @@
       </view>
 
       <view class="stats-footer-info">
-        <text class="stats-target-desc">当前目标: {{targetText}}</text>
+        <text class="stats-target-desc">当前目标: {{targetText}} (还差 {{remainingText}})</text>
         <text tt:if="{{goalMode === 'auto'}}" class="stats-tier-badge">已达成 {{level}} 档</text>
       </view>
 
@@ -182,7 +194,7 @@
     </view>
 
     <!-- Live Leaderboard Card -->
-    <view class="card-box board-card">
+    <view class="card-box glass-panel board-card">
       <view class="card-header">
         <view class="px-icon px-crown"></view>
         <text class="card-title">观众点赞贡献榜</text>
@@ -207,7 +219,7 @@
   <view class="bottom-bar">
     <view tt:if="{{!running}}" class="btn-pixel btn-primary" bindtap="startGame">
       <view class="px-icon px-sparkle"></view>
-      <text class="btn-text">开启直播互动</text>
+      <text class="btn-text">开启毛玻璃互动卡</text>
     </view>
     <block tt:else>
       <view class="btn-pixel btn-ghost" bindtap="toggleCardVisible">
