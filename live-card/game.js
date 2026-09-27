@@ -1,61 +1,102 @@
-// Audience-facing live card: a shared like goal plus a like leaderboard.
-// Everything is laid out in a 150px-wide design space and scaled uniformly
-// to whatever size the panel created the card with.
+// Audience-facing live card: 150px × 88px lightweight pixel-art live widget.
+// Compliant with Douyin Live Interactive Tools design specifications (≤88px height, high readability, light theme).
 
 const DESIGN_WIDTH = 150
-const FULL_DESIGN_HEIGHT = 88
-const COMPACT_ROW_HEIGHT = 13
-const TOP_ROWS = 4
+const DESIGN_HEIGHT = 88
+const TOP_ROWS = 3
 const DRAW_THROTTLE_MS = 200
 const MAX_SEEN_MESSAGES = 2000
 const AUTO_TIERS = [1000, 10000, 100000, 500000, 1000000]
 
 const COLORS = {
-  panel: '#ffffff',
-  panelEdge: '#e5e8f0',
-  panelInner: '#f8f9fc',
-  text: '#1d2133',
-  muted: '#8a93b2',
+  bg: '#ffffff',
+  border: '#e2e8f0',
+  inner: '#f8fafc',
+  text: '#0f172a',
+  sub: '#475569',
+  muted: '#94a3b8',
   accent: '#ff4d6d',
-  track: '#ececf1',
-  gold: '#ffd166',
-  silver: '#c9d1e3',
-  bronze: '#e39a6b',
-  row: '#f5f6fa',
-  rowEdge: '#e5e8f0',
+  accentLight: '#ff758f',
+  track: '#f1f5f9',
+  gold: '#f59e0b',
+  goldLight: '#fffbeb',
+  goldBorder: '#fde68a',
+  silver: '#94a3b8',
+  silverLight: '#f8fafc',
+  silverBorder: '#e2e8f0',
+  bronze: '#ea580c',
+  bronzeLight: '#fff7ed',
+  bronzeBorder: '#fed7aa',
+  rowBg: '#f8fafc',
+  rowBorder: '#e2e8f0',
+  divider: '#f1f5f9',
 }
-const AVATAR_COLORS = ['#e05a84', '#4f7be0', '#4fae62', '#9a5ee0', '#e0913f', '#2fb3c9', '#d4569f', '#6c7ee8']
-const MEDAL_COLORS = [COLORS.gold, COLORS.silver, COLORS.bronze]
 
-// 4x6 bitmap glyphs for numbers (9pt+); anything else falls back to the system font.
+const AVATAR_COLORS = [
+  '#f43f5e', '#ec4899', '#8b5cf6', '#6366f1',
+  '#3b82f6', '#06b6d4', '#10b981', '#f59e0b',
+]
+
+const MEDAL_CONFIG = [
+  { bg: COLORS.gold, light: COLORS.goldLight, border: COLORS.goldBorder, text: '#ffffff', scoreColor: '#d97706' },
+  { bg: COLORS.silver, light: COLORS.silverLight, border: COLORS.silverBorder, text: '#ffffff', scoreColor: '#475569' },
+  { bg: COLORS.bronze, light: COLORS.bronzeLight, border: COLORS.bronzeBorder, text: '#ffffff', scoreColor: '#ea580c' },
+]
+
+// 4x6 pixel font glyphs for ultra-crisp numbers and symbols
 const GLYPHS = {
   0: ['1111', '1001', '1001', '1001', '1001', '1111'],
   1: ['0100', '1100', '0100', '0100', '0100', '1110'],
-  2: ['1110', '0001', '1110', '1000', '1000', '1111'],
-  3: ['1110', '0001', '1110', '0001', '0001', '1110'],
+  2: ['1111', '0001', '1111', '1000', '1000', '1111'],
+  3: ['1111', '0001', '1111', '0001', '0001', '1111'],
   4: ['1001', '1001', '1111', '0001', '0001', '0001'],
-  5: ['1111', '1000', '1110', '0001', '0001', '1110'],
-  6: ['1110', '1000', '1110', '1001', '1001', '1110'],
-  7: ['1111', '0001', '0010', '0100', '1000', '1000'],
-  8: ['1110', '1001', '1110', '1001', '1001', '1110'],
-  9: ['1110', '1001', '1111', '0001', '0001', '1110'],
+  5: ['1111', '1000', '1111', '0001', '0001', '1111'],
+  6: ['1111', '1000', '1111', '1001', '1001', '1111'],
+  7: ['1111', '0001', '0010', '0100', '0100', '0100'],
+  8: ['1111', '1001', '1111', '1001', '1001', '1111'],
+  9: ['1111', '1001', '1111', '0001', '0001', '1111'],
   '.': ['0', '0', '0', '0', '0', '1'],
   '%': ['1001', '0001', '0010', '0100', '1000', '1001'],
 }
-const HEART = ['0110110', '1111111', '1111111', '0111110', '0011100', '0001000']
-const CROWN = ['1001001', '1101011', '1111111', '1111111']
+
+// 7x6 pixel heart
+const HEART = [
+  '0110110',
+  '1111111',
+  '1111111',
+  '0111110',
+  '0011100',
+  '0001000',
+]
+
+// 7x5 pixel crown
+const CROWN = [
+  '1001001',
+  '1010101',
+  '1111111',
+  '1111111',
+  '0111110',
+]
+
+// 5x5 pixel star/sparkle
+const SPARKLE = [
+  '00100',
+  '01110',
+  '11111',
+  '01110',
+  '00100',
+]
 
 function formatCount(value) {
   if (value >= 100000000) return `${trimDecimal(value / 100000000)}亿`
   if (value >= 10000) return `${trimDecimal(value / 10000)}万`
-  return String(value)
+  return String(value || 0)
 }
 
 function trimDecimal(value) {
   return value.toFixed(1).replace(/\.0$/, '')
 }
 
-// Auto mode walks the tier list, then continues in steps of one million.
 function goalFor(mode, total) {
   if (mode !== 'auto') {
     return { target: mode, level: total >= mode ? 1 : 0 }
@@ -67,12 +108,10 @@ function goalFor(mode, total) {
   return { target: last + extra * 1000000, level: AUTO_TIERS.length + extra - 1 }
 }
 
-// Sorted by likes; ties go to whoever reached that count first.
 function rankViewers(viewers) {
   return Array.from(viewers.values()).sort((a, b) => b.likes - a.likes || a.reachedSeq - b.reachedSeq)
 }
 
-// Top six, plus the last place when it is not already visible.
 function boardFor(ranked, topCount) {
   const rows = ranked.slice(0, topCount).map((viewer, index) => ({ ...viewer, rank: index + 1 }))
   if (ranked.length === topCount + 1) {
@@ -85,12 +124,12 @@ function boardFor(ranked, topCount) {
 
 function colorForId(id) {
   let hash = 0
-  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0
+  for (let i = 0; i < (id || '').length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0
   return AVATAR_COLORS[hash % AVATAR_COLORS.length]
 }
 
 Card({
-  // ---- API used by the panel (pages/index) ----
+  // ---- Panel Interop API ----
 
   getState() {
     const ranked = rankViewers(this.viewers)
@@ -101,9 +140,10 @@ Card({
       target: goal.target,
       level: goal.level,
       viewerCount: ranked.length,
-      board: boardFor(ranked, TOP_ROWS).map(({ id, name, likes, rank, isLast, gap }) => ({
+      board: boardFor(ranked, 6).map(({ id, name, likes, rank, isLast, gap }) => ({
         id, name, likes, rank, isLast: !!isLast, gap: !!gap,
       })),
+      top3: ranked.slice(0, 3).map((v, i) => ({ ...v, rank: i + 1 })),
       subscription: this.subscription,
     }
   },
@@ -121,18 +161,17 @@ Card({
     this.scheduleFlush()
   },
 
-  // Also the entry point for simulated messages during development.
   handleLiveMessages(payload) {
     const messages = Array.isArray(payload) ? payload : [payload]
     messages.forEach(message => this.applyLike(message))
     this.scheduleFlush()
   },
 
-  // ---- internals ----
+  // ---- Message handling ----
 
   applyLike(message) {
     const likes = Number(message && message.like_num)
-    if (!likes) return
+    if (!likes || isNaN(likes) || likes <= 0) return
     const msgId = message.msg_id
     if (msgId) {
       if (this.seenMessages.has(msgId)) return
@@ -172,12 +211,12 @@ Card({
         console.error('Live message subscription failed:', error)
         this.subscription = attempt < 4 ? 'retrying' : 'failed'
         this.scheduleFlush()
-        if (attempt < 4) setTimeout(() => this.subscribe(attempt + 1), 1000 * 2 ** attempt)
+        if (attempt < 4) setTimeout(() => this.subscribe(attempt + 1), 1000 * Math.pow(2, attempt))
       },
     })
   },
 
-  // ---- drawing ----
+  // ---- Rendering Engine ----
 
   draw() {
     const { ctx } = this
@@ -194,123 +233,180 @@ Card({
     this.drawBoard(state, height)
   },
 
+  // Lightweight pixel card frame with 3px stepped corners
   drawFrame(height) {
     const { ctx } = this
     const w = DESIGN_WIDTH
     const corner = 3
 
-    // Pixel-style rounded corners (4px corner)
-    ctx.fillStyle = COLORS.panelEdge
-    // Main background with corner cutouts
-    ctx.fillRect(0 + corner, 0, w - corner * 2, height)
+    // Outer border
+    ctx.fillStyle = COLORS.border
+    ctx.fillRect(corner, 0, w - corner * 2, height)
     ctx.fillRect(0, corner, w, height - corner * 2)
-
     // Corner pixels
     for (let i = 0; i < corner; i++) {
-      const size = corner - i
-      ctx.fillRect(i, i, size, 1)
-      ctx.fillRect(w - corner + i, i, 1, 1)
+      ctx.fillRect(i, corner - 1 - i, 1, 1)
+      ctx.fillRect(w - 1 - i, corner - 1 - i, 1, 1)
       ctx.fillRect(i, height - corner + i, 1, 1)
-      ctx.fillRect(w - corner + i, height - corner + i, 1, 1)
+      ctx.fillRect(w - 1 - i, height - corner + i, 1, 1)
     }
 
-    // Inner panel
-    ctx.fillStyle = COLORS.panel
-    ctx.fillRect(1 + corner, 1, w - 2 - corner * 2, height - 2)
-    ctx.fillRect(1, 1 + corner, w - 2, height - 2 - corner * 2)
+    // Inner pure white surface
+    ctx.fillStyle = COLORS.bg
+    ctx.fillRect(corner, 1, w - corner * 2, height - 2)
+    ctx.fillRect(1, corner, w - 2, height - corner * 2)
+    for (let i = 0; i < corner - 1; i++) {
+      ctx.fillRect(i + 1, corner - 1 - i, 1, 1)
+      ctx.fillRect(w - 2 - i, corner - 1 - i, 1, 1)
+      ctx.fillRect(i + 1, height - corner + i, 1, 1)
+      ctx.fillRect(w - 2 - i, height - corner + i, 1, 1)
+    }
   },
 
+  // Top goal section: 0 to 27px
   drawGoal(state) {
     const { ctx } = this
     const progress = Math.min(1, state.totalLikes / state.target)
 
-    // Compact header: heart + text + total likes + percent
-    drawBitmap(ctx, HEART, 5, 4, 1, COLORS.accent)
+    // Pixel Heart icon
+    drawBitmap(ctx, HEART, 6, 4.5, 1, COLORS.accent)
+
+    // Title: "点赞目标"
     ctx.fillStyle = COLORS.text
     ctx.font = 'bold 8px sans-serif'
     ctx.textAlign = 'left'
-    ctx.fillText('一起', 13, 3)
+    ctx.fillText('点赞目标', 15.5, 3.5)
 
-    drawNumber(ctx, formatCount(state.totalLikes), 148, 2, 1.8, COLORS.accent, 'right')
+    // Total likes formatted on top right
+    drawNumber(ctx, formatCount(state.totalLikes), 144, 3, 1.4, COLORS.accent, 'right')
 
-    // Progress indicator: 8 compact blocks
-    const segments = 8
-    const barX = 5
+    // Segmented progress bar (8 blocks, total 96px width)
+    const barX = 6
     const barY = 14
-    const segWidth = 5
-    ctx.fillStyle = COLORS.track
-    ctx.fillRect(barX - 0.5, barY - 0.5, segments * (segWidth + 0.5) + 0.5, 6)
-    const lit = Math.round(progress * segments)
-    for (let i = 0; i < segments; i++) {
-      ctx.fillStyle = i < lit ? COLORS.accent : COLORS.panelInner
-      ctx.fillRect(barX + i * (segWidth + 0.5), barY, segWidth, 5)
+    const totalSegments = 8
+    const segWidth = 10.5
+    const segGap = 1.5
+    const lit = Math.round(progress * totalSegments)
+
+    for (let i = 0; i < totalSegments; i++) {
+      const sx = barX + i * (segWidth + segGap)
+      const isLit = i < lit
+      ctx.fillStyle = isLit ? COLORS.accent : COLORS.track
+      ctx.fillRect(sx, barY, segWidth, 4.5)
+      if (isLit) {
+        // Highlight notch
+        ctx.fillStyle = COLORS.accentLight
+        ctx.fillRect(sx, barY, segWidth, 1)
+      }
     }
 
-    // Percent on the right
-    drawNumber(ctx, `${Math.floor(progress * 100)}%`, 148, 13, 1.4, COLORS.accent, 'right')
+    // Percent on right of progress bar
+    drawNumber(ctx, `${Math.floor(progress * 100)}%`, 144, 13.5, 1.1, COLORS.accent, 'right')
 
-    // Thin divider line
-    ctx.fillStyle = COLORS.rowEdge
-    ctx.fillRect(5, 24, 140, 1)
+    // Sub note: Milestone info & target
+    ctx.fillStyle = COLORS.muted
+    ctx.font = '6.5px sans-serif'
+    ctx.textAlign = 'left'
+    const tierNote = state.goalMode === 'auto' ? `已达${state.level}档` : '全员冲榜'
+    ctx.fillText(tierNote, 6, 20.5)
+
+    ctx.textAlign = 'right'
+    ctx.fillText(`目标 ${formatCount(state.target)}`, 144, 20.5)
+
+    // Thin separator line
+    ctx.fillStyle = COLORS.divider
+    ctx.fillRect(6, 28, 138, 1)
   },
 
+  // Bottom leaderboard section: 29px to 86px
   drawBoard(state, height) {
     const { ctx } = this
-    drawBitmap(ctx, CROWN, 5, 29, 1, COLORS.gold)
-    ctx.fillStyle = COLORS.text
-    ctx.font = 'bold 8px sans-serif'
-    ctx.textAlign = 'left'
-    ctx.fillText('榜', 13, 28)
 
-    if (!state.board.length) {
+    // Crown icon
+    drawBitmap(ctx, CROWN, 6, 31, 1, COLORS.gold)
+
+    // Subtitle: "点赞榜"
+    ctx.fillStyle = COLORS.sub
+    ctx.font = 'bold 7px sans-serif'
+    ctx.textAlign = 'left'
+    ctx.fillText('点赞榜', 15.5, 30.5)
+
+    // Participant count on top right
+    ctx.fillStyle = COLORS.muted
+    ctx.font = '6.5px sans-serif'
+    ctx.textAlign = 'right'
+    const countNote = state.viewerCount > 0 ? `${state.viewerCount}人参与` : '虚位以待'
+    ctx.fillText(countNote, 144, 30.5)
+
+    const list = state.top3 || []
+
+    if (list.length === 0) {
+      // Clean empty state
+      drawBitmap(ctx, SPARKLE, 73, 46, 1, COLORS.gold)
       ctx.fillStyle = COLORS.muted
       ctx.font = '7px sans-serif'
       ctx.textAlign = 'center'
-      ctx.fillText('点赞即可上榜', DESIGN_WIDTH / 2, 55)
+      ctx.fillText('点赞即可上榜 冲锋第1名✨', DESIGN_WIDTH / 2, 58)
       return
     }
 
-    let y = 38
-    state.board.forEach((row, index) => {
-      if (index >= TOP_ROWS) return
-      if (row.gap) return
-      y += this.drawCompactRow(row, y)
-    })
+    // Render up to 3 rows
+    const rowYList = [39, 54, 69]
+    for (let i = 0; i < TOP_ROWS; i++) {
+      const y = rowYList[i]
+      if (i < list.length) {
+        this.drawRow(list[i], y, i)
+      } else {
+        this.drawEmptyRow(y, i + 1)
+      }
+    }
   },
 
-  drawCompactRow(row, y) {
+  drawRow(row, y, index) {
     const { ctx } = this
-    const h = 12
-    const isTop3 = row.rank <= 3 && !row.isLast
+    const h = 13.5
+    const medal = MEDAL_CONFIG[index] || MEDAL_CONFIG[1]
 
-    // Row background
-    ctx.fillStyle = COLORS.row
-    ctx.fillRect(5, y, 140, h)
+    // Row container
+    ctx.fillStyle = medal.light
+    ctx.fillRect(6, y, 138, h)
+    ctx.fillStyle = medal.border
+    ctx.fillRect(6, y, 138, 1)
+    ctx.fillRect(6, y + h - 1, 138, 1)
+    ctx.fillRect(6, y, 1, h)
+    ctx.fillRect(143, y, 1, h)
 
-    // Border
-    ctx.fillStyle = COLORS.rowEdge
-    ctx.fillRect(5, y, 140, 1)
+    // Medal rank badge (9x9px)
+    ctx.fillStyle = medal.bg
+    ctx.fillRect(8, y + 2, 9, 9)
+    drawNumber(ctx, String(row.rank), 12.5, y + 2.5, 0.8, medal.text, 'center')
 
-    // Medal or rank number
-    if (isTop3) {
-      const medal = MEDAL_COLORS[row.rank - 1]
-      ctx.fillStyle = medal
-      ctx.fillRect(8, y + 2, 10, 8)
-      drawNumber(ctx, String(row.rank), 13, y + 2.5, 1, COLORS.panel, 'center')
-    } else {
-      drawNumber(ctx, String(row.rank), 13, y + 3.5, 0.9, COLORS.muted, 'center')
-    }
+    // Avatar (9x9px pastel block + initial)
+    this.drawAvatar(row, 19, y + 2, 9, 6.5)
 
-    // Avatar
-    this.drawAvatar(row, 21, y + 2, 8, 6)
+    // Viewer Name
+    this.drawName(row.name, 30, y + 2.5, 7.5, 62)
 
-    // Name
-    this.drawName(row.name, 32, y + 3, 7, 60)
+    // Likes count
+    drawNumber(ctx, formatCount(row.likes), 141, y + 2.5, 1.1, medal.scoreColor, 'right')
+  },
 
-    // Likes
-    drawNumber(ctx, formatCount(row.likes), 145, y + 3, 1.2, isTop3 ? COLORS.gold : COLORS.text, 'right')
+  drawEmptyRow(y, rank) {
+    const { ctx } = this
+    const h = 13.5
 
-    return h + 1
+    ctx.fillStyle = COLORS.inner
+    ctx.fillRect(6, y, 138, h)
+    ctx.fillStyle = COLORS.border
+    ctx.fillRect(6, y, 138, 1)
+
+    // Rank number in muted color
+    drawNumber(ctx, String(rank), 12.5, y + 2.5, 0.8, COLORS.muted, 'center')
+
+    ctx.fillStyle = COLORS.muted
+    ctx.font = '6.5px sans-serif'
+    ctx.textAlign = 'left'
+    ctx.fillText('虚位以待 · 冲榜中~', 30, y + 3)
   },
 
   drawAvatar(row, x, y, size, fontSize) {
@@ -321,7 +417,7 @@ Card({
     ctx.font = `bold ${fontSize}px sans-serif`
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
-    ctx.fillText(Array.from(row.name)[0] || '?', x + size / 2, y + size / 2)
+    ctx.fillText(Array.from(row.name || '?')[0] || '?', x + size / 2, y + size / 2)
     ctx.textBaseline = 'top'
   },
 
@@ -330,9 +426,9 @@ Card({
     ctx.fillStyle = COLORS.text
     ctx.font = `${fontSize}px sans-serif`
     ctx.textAlign = 'left'
-    let text = name
+    let text = name || '神秘观众'
     if (ctx.measureText(text).width > maxWidth) {
-      const chars = Array.from(name)
+      const chars = Array.from(text)
       while (chars.length && ctx.measureText(`${chars.join('')}…`).width > maxWidth) chars.pop()
       text = `${chars.join('')}…`
     }
@@ -343,7 +439,7 @@ Card({
     this.canvas = this.getCanvas()
     this.ctx = this.canvas.getContext('2d')
     this.cardWidth = Number(options && options.width) || this.canvas.clientWidth || 150
-    this.cardHeight = Number(options && options.height) || this.canvas.clientHeight || 200
+    this.cardHeight = Number(options && options.height) || this.canvas.clientHeight || 88
     this.pixelRatio = Math.min(3, tt.getSystemInfoSync().pixelRatio || 2)
     this.canvas.width = Math.round(this.cardWidth * this.pixelRatio)
     this.canvas.height = Math.round(this.cardHeight * this.pixelRatio)
@@ -355,16 +451,6 @@ Card({
   },
 })
 
-function steppedRect(ctx, x, y, w, h, step, color) {
-  ctx.fillStyle = color
-  ctx.fillRect(x + step, y, w - step * 2, h)
-  ctx.fillRect(x, y + step, w, h - step * 2)
-  if (step > 1) {
-    const half = Math.ceil(step / 2)
-    ctx.fillRect(x + half, y + half, w - half * 2, h - half * 2)
-  }
-}
-
 function drawBitmap(ctx, rows, x, y, px, color) {
   ctx.fillStyle = color
   rows.forEach((row, r) => {
@@ -374,11 +460,10 @@ function drawBitmap(ctx, rows, x, y, px, color) {
   })
 }
 
-// Draws digits, '.', and '%' as pixel glyphs; other characters (万/亿) use the
-// system font at matching height. `y` is the top of the glyphs.
+// Draws digits, '.', and '%' as pixel glyphs; other characters (万/亿) use system font
 function drawNumber(ctx, text, x, y, px, color, align) {
   const unitSize = 4 * px + 0.5
-  const chars = Array.from(text)
+  const chars = Array.from(String(text || '0'))
   const widths = chars.map(ch => (GLYPHS[ch] ? GLYPHS[ch][0].length * px : unitSize * 1.2))
   const total = widths.reduce((sum, w) => sum + w, 0) + Math.max(0, chars.length - 1) * px * 0.5
   let cursor = align === 'right' ? x - total : align === 'center' ? x - total / 2 : x

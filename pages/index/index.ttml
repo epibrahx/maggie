@@ -1,93 +1,222 @@
-<template name="board">
+<!-- Template for leaderboard rows in panel -->
+<template name="board-item">
   <block tt:for="{{rows}}" tt:key="id">
-    <view tt:if="{{item.gap}}" class="board-gap"><text>···</text></view>
-    <view class="board-row {{item.medal ? 'board-row-top' : ''}} {{item.medal === 1 ? 'board-row-first' : ''}}">
+    <view tt:if="{{item.gap}}" class="board-gap">
+      <view class="gap-dots">
+        <view class="dot"></view><view class="dot"></view><view class="dot"></view>
+      </view>
+    </view>
+    <view class="board-row {{item.medal ? 'board-row-top' : ''}} {{item.medal === 1 ? 'board-row-gold' : ''}}">
       <view tt:if="{{item.medal}}" class="medal medal-{{item.medal}}">{{item.rank}}</view>
-      <text tt:else class="rank">{{item.rank}}</text>
-      <view class="avatar" style="background: {{item.color}}">{{item.initial}}</view>
-      <text class="name">{{item.name}}</text>
-      <text tt:if="{{item.isLast}}" class="cheer">加油</text>
-      <text class="likes {{item.medal === 1 ? 'likes-first' : ''}}">{{item.likesText}}</text>
+      <text tt:else class="rank-num">{{item.rank}}</text>
+      
+      <view class="avatar-block" style="background-color: {{item.color}}">
+        <text class="avatar-text">{{item.initial}}</text>
+      </view>
+      
+      <text class="name-text">{{item.name}}</text>
+      <text tt:if="{{item.isLast}}" class="cheer-badge">加油</text>
+      <text class="likes-text {{item.medal === 1 ? 'likes-gold' : ''}}">{{item.likesText}}</text>
     </view>
   </block>
 </template>
 
-<view class="page {{running ? 'page-running' : ''}}">
-  <!-- Idle: configure, preview, start -->
+<view class="container {{running ? 'container-running' : ''}}">
+  
+  <!-- ================= IDLE STATE ================= -->
   <block tt:if="{{!running}}">
-    <view class="section-title"><view class="px-icon px-heart"></view><text>点赞目标</text></view>
-    <view class="chips">
-      <view tt:for="{{goalOptions}}" tt:key="value" class="chip {{goalMode === item.value ? 'chip-on' : ''}}" data-value="{{item.value}}" bindtap="selectGoal">{{item.label}}</view>
+    <!-- Brand Header -->
+    <view class="brand-hero">
+      <view class="brand-badge">
+        <view class="px-icon px-heart"></view>
+        <text class="brand-title">喜鹊 · 直播互动</text>
+      </view>
+      <text class="brand-subtitle">点赞目标与实时贡献榜，点燃直播间互动氛围</text>
     </view>
-    <view class="custom-goal">
-      <input class="custom-input" type="number" placeholder="自定义目标" value="{{customGoal}}" bindinput="inputCustomGoal" />
-      <view class="chip chip-small" bindtap="confirmCustomGoal">设定</view>
-    </view>
-    <text class="hint">{{goalMode === 'auto' ? '达成后自动进入下一档：1千 → 1万 → 10万 → 50万 → 100万' : '固定目标：' + goalMode + ' 赞'}}</text>
 
-    <view class="section-title"><view class="px-icon px-screen"></view><text>观众看到的卡片</text></view>
-    <view class="preview">
-      <view class="preview-card">
-        <view class="preview-goal">
-          <text class="preview-heart">♥</text><text class="preview-cta">一起点亮</text><text class="preview-total">52.3万</text>
+    <!-- Section 1: Goal Config -->
+    <view class="card-box">
+      <view class="card-header">
+        <view class="px-icon px-target"></view>
+        <text class="card-title">点赞目标设定</text>
+      </view>
+
+      <view class="chip-grid">
+        <view tt:for="{{goalOptions}}" tt:key="value" 
+              class="chip-item {{goalMode === item.value ? 'chip-active' : ''}}" 
+              data-value="{{item.value}}" 
+              bindtap="selectGoal">
+          <text class="chip-label">{{item.label}}</text>
+          <text tt:if="{{item.tag}}" class="chip-tag">{{item.tag}}</text>
         </view>
-        <view class="segments">
-          <view tt:for="{{segments}}" tt:key="*this" class="segment {{item < 6 ? 'segment-on' : ''}}"></view>
-        </view>
-        <text class="preview-sub">52% · 目标 100万</text>
-        <view class="preview-board">
-          <template is="board" data="{{rows: sampleBoard}}" />
+      </view>
+
+      <view class="custom-row">
+        <input class="custom-input" 
+               type="number" 
+               placeholder="自定义点赞目标 (如 50000)" 
+               value="{{customGoal}}" 
+               bindinput="inputCustomGoal" />
+        <view class="btn-custom" bindtap="confirmCustomGoal">设定</view>
+      </view>
+
+      <view class="tip-box">
+        <text class="tip-icon">💡</text>
+        <text class="tip-text">{{goalMode === 'auto' ? '自动档位：1千 → 1万 → 10万 → 50万 → 100万（每阶递增）' : '当前固定目标：' + goalMode + ' 点赞'}}</text>
+      </view>
+    </view>
+
+    <!-- Section 2: Live Card Preview -->
+    <view class="card-box">
+      <view class="card-header">
+        <view class="px-icon px-screen"></view>
+        <text class="card-title">直播间观众端卡片预览</text>
+        <text class="card-tag">150×88 规范尺寸</text>
+      </view>
+
+      <view class="preview-stage">
+        <!-- Live Card Mockup (150x88 standard proportion) -->
+        <view class="mini-live-card">
+          <!-- Top Goal Area -->
+          <view class="mini-goal-area">
+            <view class="mini-head">
+              <view class="mini-heart">♥</view>
+              <text class="mini-title">点赞目标</text>
+              <text class="mini-total">5.2万</text>
+            </view>
+            <view class="mini-bar">
+              <view tt:for="{{segments}}" tt:key="*this" class="mini-seg {{item < 5 ? 'mini-seg-on' : ''}}"></view>
+            </view>
+            <view class="mini-meta">
+              <text class="mini-tier">已达2档</text>
+              <text class="mini-percent">52%</text>
+              <text class="mini-target">目标 10万</text>
+            </view>
+          </view>
+
+          <!-- Divider -->
+          <view class="mini-divider"></view>
+
+          <!-- Bottom Board Area -->
+          <view class="mini-board-area">
+            <view class="mini-board-head">
+              <view class="mini-crown">👑</view>
+              <text class="mini-board-title">点赞榜</text>
+              <text class="mini-count">128人参与</text>
+            </view>
+            <view class="mini-rows">
+              <view tt:for="{{sampleTop3}}" tt:key="id" class="mini-row mini-row-{{item.medal}}">
+                <view class="mini-medal mini-medal-{{item.medal}}">{{item.rank}}</view>
+                <view class="mini-avatar" style="background: {{item.color}}">{{item.initial}}</view>
+                <text class="mini-name">{{item.name}}</text>
+                <text class="mini-likes {{item.medal === 1 ? 'mini-likes-gold' : ''}}">{{item.likesText}}</text>
+              </view>
+            </view>
+          </view>
         </view>
       </view>
     </view>
   </block>
 
-  <!-- Running: live stats and leaderboard -->
+  <!-- ================= RUNNING STATE ================= -->
   <block tt:else>
+    <!-- Status Header Bar -->
     <view class="status-bar">
-      <view class="status-dot {{subscription === 'connected' ? '' : 'status-dot-warn'}}"></view>
-      <text>{{subscription === 'connected' ? '进行中' : (subscription === 'failed' ? '数据连接失败' : '连接中')}}</text>
-      <text class="status-time">{{elapsed}}</text>
-      <text tt:if="{{cardHidden}}" class="status-hidden">卡片已隐藏</text>
+      <view class="status-left">
+        <view class="pulse-dot {{subscription === 'connected' ? 'dot-online' : 'dot-warn'}}"></view>
+        <text class="status-state">{{subscription === 'connected' ? '互动进行中' : (subscription === 'failed' ? '连接异常' : '连接中')}}</text>
+        <text class="status-timer">{{elapsed}}</text>
+      </view>
+      <view class="status-right">
+        <text class="visibility-badge {{cardHidden ? 'badge-hidden' : 'badge-visible'}}">
+          {{cardHidden ? '卡片已隐藏' : '卡片展示中'}}
+        </text>
+      </view>
     </view>
 
-    <view class="stat-card" bindtap="toggleGoalEditor">
-      <view class="stat-head">
-        <text class="stat-label">本场点赞</text>
-        <text class="stat-total">{{totalText}}</text>
-      </view>
-      <view class="stat-bar">
-        <view class="segments segments-large">
-          <view tt:for="{{segments}}" tt:key="*this" class="segment {{item < litSegments ? 'segment-on' : ''}}"></view>
+    <!-- Live Goal Stats Card -->
+    <view class="card-box stats-card">
+      <view class="stats-top">
+        <view class="stats-label-group">
+          <view class="px-icon px-heart"></view>
+          <text class="stats-label">本场累计点赞</text>
         </view>
-        <text class="stat-percent">{{percent}}%</text>
+        <view class="btn-edit-goal" bindtap="toggleGoalEditor">
+          <text>{{editingGoal ? '收起' : '修改目标'}}</text>
+        </view>
       </view>
-      <text class="stat-sub">目标 {{targetText}}{{goalMode === 'auto' ? ' · 已达成 ' + level + ' 档' : ''}} · 点击修改</text>
+
+      <view class="stats-hero">
+        <text class="stats-hero-num">{{totalText}}</text>
+        <text class="stats-hero-unit">次点赞</text>
+      </view>
+
+      <view class="stats-progress-box">
+        <view class="progress-bar">
+          <view tt:for="{{segments}}" tt:key="*this" class="seg-block {{item < litSegments ? 'seg-lit' : ''}}"></view>
+        </view>
+        <text class="progress-percent">{{percent}}%</text>
+      </view>
+
+      <view class="stats-footer-info">
+        <text class="stats-target-desc">当前目标: {{targetText}}</text>
+        <text tt:if="{{goalMode === 'auto'}}" class="stats-tier-badge">已达成 {{level}} 档</text>
+      </view>
+
+      <!-- In-flight Goal Editor Drawer -->
+      <view tt:if="{{editingGoal}}" class="inline-editor">
+        <view class="inline-editor-title">快速修改目标：</view>
+        <view class="chip-grid">
+          <view tt:for="{{goalOptions}}" tt:key="value" 
+                class="chip-item {{goalMode === item.value ? 'chip-active' : ''}}" 
+                data-value="{{item.value}}" 
+                bindtap="selectGoal">
+            <text class="chip-label">{{item.label}}</text>
+          </view>
+        </view>
+        <view class="custom-row">
+          <input class="custom-input" type="number" placeholder="输入自定义目标" value="{{customGoal}}" bindinput="inputCustomGoal" />
+          <view class="btn-custom" bindtap="confirmCustomGoal">应用</view>
+        </view>
+      </view>
     </view>
 
-    <view tt:if="{{editingGoal}}" class="goal-editor">
-      <view class="chips">
-        <view tt:for="{{goalOptions}}" tt:key="value" class="chip {{goalMode === item.value ? 'chip-on' : ''}}" data-value="{{item.value}}" bindtap="selectGoal">{{item.label}}</view>
+    <!-- Live Leaderboard Card -->
+    <view class="card-box board-card">
+      <view class="card-header">
+        <view class="px-icon px-crown"></view>
+        <text class="card-title">观众点赞贡献榜</text>
+        <text class="card-tag">Top 6 + 冲榜末位</text>
       </view>
-      <view class="custom-goal">
-        <input class="custom-input" type="number" placeholder="自定义目标" value="{{customGoal}}" bindinput="inputCustomGoal" />
-        <view class="chip chip-small" bindtap="confirmCustomGoal">设定</view>
-      </view>
-    </view>
 
-    <view class="section-title"><view class="px-icon px-crown"></view><text>点赞榜</text><text class="section-note">Top6 + 末位</text></view>
-    <view class="board-light">
-      <template tt:if="{{board.length}}" is="board" data="{{rows: board}}" />
-      <view tt:else class="board-empty">还没有人点赞，等第一位上榜</view>
+      <view class="board-body">
+        <template tt:if="{{board.length}}" is="board-item" data="{{rows: board}}" />
+        <view tt:else class="board-empty">
+          <view class="empty-icon">✨</view>
+          <text class="empty-text">等待观众点赞上榜中...</text>
+        </view>
+      </view>
+
+      <view class="reset-action" bindtap="resetSession">
+        <text class="reset-text">重置本场数据</text>
+      </view>
     </view>
-    <view class="reset" bindtap="resetSession">重置本场数据</view>
   </block>
 
-  <view class="footer">
-    <view tt:if="{{!running}}" class="btn btn-primary" bindtap="startGame">开启玩法</view>
+  <!-- ================= BOTTOM ACTION BAR ================= -->
+  <view class="bottom-bar">
+    <view tt:if="{{!running}}" class="btn-pixel btn-primary" bindtap="startGame">
+      <view class="px-icon px-sparkle"></view>
+      <text class="btn-text">开启直播互动</text>
+    </view>
     <block tt:else>
-      <view class="btn btn-ghost" bindtap="toggleCardVisible">{{cardHidden ? '显示卡片' : '隐藏卡片'}}</view>
-      <view class="btn btn-primary" bindtap="closeGame">关闭玩法</view>
+      <view class="btn-pixel btn-ghost" bindtap="toggleCardVisible">
+        <text class="btn-text">{{cardHidden ? '展示卡片' : '隐藏卡片'}}</text>
+      </view>
+      <view class="btn-pixel btn-danger" bindtap="closeGame">
+        <text class="btn-text">结束玩法</text>
+      </view>
     </block>
   </view>
+
 </view>
