@@ -3,44 +3,44 @@
 // to whatever size the panel created the card with.
 
 const DESIGN_WIDTH = 150
-const FULL_DESIGN_HEIGHT = 196
-const COMPACT_ROW_HEIGHT = 15
-const TOP_ROWS = 6
+const FULL_DESIGN_HEIGHT = 88
+const COMPACT_ROW_HEIGHT = 13
+const TOP_ROWS = 4
 const DRAW_THROTTLE_MS = 200
 const MAX_SEEN_MESSAGES = 2000
 const AUTO_TIERS = [1000, 10000, 100000, 500000, 1000000]
 
 const COLORS = {
-  panel: '#141826',
-  panelEdge: '#3a4468',
-  panelInner: '#1c2236',
-  text: '#f2f3f7',
+  panel: '#ffffff',
+  panelEdge: '#e5e8f0',
+  panelInner: '#f8f9fc',
+  text: '#1d2133',
   muted: '#8a93b2',
   accent: '#ff4d6d',
-  track: '#2a3150',
+  track: '#ececf1',
   gold: '#ffd166',
   silver: '#c9d1e3',
   bronze: '#e39a6b',
-  row: '#1a2033',
-  rowEdge: '#2a3250',
+  row: '#f5f6fa',
+  rowEdge: '#e5e8f0',
 }
 const AVATAR_COLORS = ['#e05a84', '#4f7be0', '#4fae62', '#9a5ee0', '#e0913f', '#2fb3c9', '#d4569f', '#6c7ee8']
 const MEDAL_COLORS = [COLORS.gold, COLORS.silver, COLORS.bronze]
 
-// 3x5 bitmap glyphs for numbers; anything else falls back to the system font.
+// 4x6 bitmap glyphs for numbers (9pt+); anything else falls back to the system font.
 const GLYPHS = {
-  0: ['111', '101', '101', '101', '111'],
-  1: ['010', '110', '010', '010', '111'],
-  2: ['111', '001', '111', '100', '111'],
-  3: ['111', '001', '111', '001', '111'],
-  4: ['101', '101', '111', '001', '001'],
-  5: ['111', '100', '111', '001', '111'],
-  6: ['111', '100', '111', '101', '111'],
-  7: ['111', '001', '001', '001', '001'],
-  8: ['111', '101', '111', '101', '111'],
-  9: ['111', '101', '111', '001', '111'],
-  '.': ['0', '0', '0', '0', '1'],
-  '%': ['101', '001', '010', '100', '101'],
+  0: ['1111', '1001', '1001', '1001', '1001', '1111'],
+  1: ['0100', '1100', '0100', '0100', '0100', '1110'],
+  2: ['1110', '0001', '1110', '1000', '1000', '1111'],
+  3: ['1110', '0001', '1110', '0001', '0001', '1110'],
+  4: ['1001', '1001', '1111', '0001', '0001', '0001'],
+  5: ['1111', '1000', '1110', '0001', '0001', '1110'],
+  6: ['1110', '1000', '1110', '1001', '1001', '1110'],
+  7: ['1111', '0001', '0010', '0100', '1000', '1000'],
+  8: ['1110', '1001', '1110', '1001', '1001', '1110'],
+  9: ['1110', '1001', '1111', '0001', '0001', '1110'],
+  '.': ['0', '0', '0', '0', '0', '1'],
+  '%': ['1001', '0001', '0010', '0100', '1000', '1001'],
 }
 const HEART = ['0110110', '1111111', '1111111', '0111110', '0011100', '0001000']
 const CROWN = ['1001001', '1101011', '1111111', '1111111']
@@ -197,129 +197,120 @@ Card({
   drawFrame(height) {
     const { ctx } = this
     const w = DESIGN_WIDTH
-    // Stepped pixel corners: an outer edge color, then the panel inset by 1px.
-    steppedRect(ctx, 0, 0, w, height, 3, COLORS.panelEdge)
-    steppedRect(ctx, 1, 1, w - 2, height - 2, 2, COLORS.panel)
+    const corner = 3
+
+    // Pixel-style rounded corners (4px corner)
+    ctx.fillStyle = COLORS.panelEdge
+    // Main background with corner cutouts
+    ctx.fillRect(0 + corner, 0, w - corner * 2, height)
+    ctx.fillRect(0, corner, w, height - corner * 2)
+
+    // Corner pixels
+    for (let i = 0; i < corner; i++) {
+      const size = corner - i
+      ctx.fillRect(i, i, size, 1)
+      ctx.fillRect(w - corner + i, i, 1, 1)
+      ctx.fillRect(i, height - corner + i, 1, 1)
+      ctx.fillRect(w - corner + i, height - corner + i, 1, 1)
+    }
+
+    // Inner panel
+    ctx.fillStyle = COLORS.panel
+    ctx.fillRect(1 + corner, 1, w - 2 - corner * 2, height - 2)
+    ctx.fillRect(1, 1 + corner, w - 2, height - 2 - corner * 2)
   },
 
   drawGoal(state) {
     const { ctx } = this
     const progress = Math.min(1, state.totalLikes / state.target)
 
-    drawBitmap(ctx, HEART, 9, 10, 1.3, COLORS.accent)
+    // Compact header: heart + text + total likes + percent
+    drawBitmap(ctx, HEART, 5, 4, 1, COLORS.accent)
     ctx.fillStyle = COLORS.text
-    ctx.font = 'bold 10px sans-serif'
+    ctx.font = 'bold 8px sans-serif'
     ctx.textAlign = 'left'
-    ctx.fillText('一起点亮', 21, 9.5)
-    drawNumber(ctx, formatCount(state.totalLikes), 141, 8, 2.2, COLORS.accent, 'right')
+    ctx.fillText('一起', 13, 3)
 
-    // Segmented progress bar: 12 blocks, lit ones in the accent color.
-    const segments = 12
-    const barX = 9
-    const barY = 28
-    const segWidth = 6.5
+    drawNumber(ctx, formatCount(state.totalLikes), 148, 2, 1.8, COLORS.accent, 'right')
+
+    // Progress indicator: 8 compact blocks
+    const segments = 8
+    const barX = 5
+    const barY = 14
+    const segWidth = 5
     ctx.fillStyle = COLORS.track
-    ctx.fillRect(barX - 1, barY - 1, segments * (segWidth + 1) + 1, 8)
+    ctx.fillRect(barX - 0.5, barY - 0.5, segments * (segWidth + 0.5) + 0.5, 6)
     const lit = Math.round(progress * segments)
     for (let i = 0; i < segments; i++) {
       ctx.fillStyle = i < lit ? COLORS.accent : COLORS.panelInner
-      ctx.fillRect(barX + i * (segWidth + 1), barY, segWidth, 6)
+      ctx.fillRect(barX + i * (segWidth + 0.5), barY, segWidth, 5)
     }
-    drawNumber(ctx, `${Math.floor(progress * 100)}%`, 141, 28.5, 1.1, COLORS.accent, 'right')
 
-    ctx.fillStyle = COLORS.muted
-    ctx.font = '7px sans-serif'
-    ctx.textAlign = 'right'
-    ctx.fillText(`目标 ${formatCount(state.target)}`, 141, 39)
+    // Percent on the right
+    drawNumber(ctx, `${Math.floor(progress * 100)}%`, 148, 13, 1.4, COLORS.accent, 'right')
 
-    // Pixel divider with a small diamond in the middle.
+    // Thin divider line
     ctx.fillStyle = COLORS.rowEdge
-    ctx.fillRect(9, 51, 58, 1)
-    ctx.fillRect(83, 51, 58, 1)
-    ctx.fillRect(74, 49, 2, 2)
-    ctx.fillRect(74, 52, 2, 2)
-    ctx.fillRect(72, 51, 2, 1)
-    ctx.fillRect(76, 51, 2, 1)
+    ctx.fillRect(5, 24, 140, 1)
   },
 
   drawBoard(state, height) {
     const { ctx } = this
-    drawBitmap(ctx, CROWN, 9, 59, 1.3, COLORS.gold)
+    drawBitmap(ctx, CROWN, 5, 29, 1, COLORS.gold)
     ctx.fillStyle = COLORS.text
-    ctx.font = 'bold 9px sans-serif'
+    ctx.font = 'bold 8px sans-serif'
     ctx.textAlign = 'left'
-    ctx.fillText('点赞榜', 21, 57.5)
+    ctx.fillText('榜', 13, 28)
 
     if (!state.board.length) {
       ctx.fillStyle = COLORS.muted
-      ctx.font = '8px sans-serif'
+      ctx.font = '7px sans-serif'
       ctx.textAlign = 'center'
-      ctx.fillText('点赞即可上榜', DESIGN_WIDTH / 2, 100)
+      ctx.fillText('点赞即可上榜', DESIGN_WIDTH / 2, 55)
       return
     }
 
-    // Drop compact rows 6 and 5 when the host gave us less height than the full layout.
-    const missing = Math.max(0, FULL_DESIGN_HEIGHT - height)
-    const hiddenRanks = new Set()
-    if (missing > 0) hiddenRanks.add(6)
-    if (missing > COMPACT_ROW_HEIGHT) hiddenRanks.add(5)
-
-    let y = 71
-    state.board.forEach(row => {
-      if (!row.isLast && hiddenRanks.has(row.rank)) return
-      if (row.gap) {
-        ctx.fillStyle = COLORS.muted
-        for (let i = 0; i < 3; i++) ctx.fillRect(70 + i * 4, y + 1, 2, 2)
-        y += 6
-      }
-      y += row.rank <= 3 && !row.isLast ? this.drawTopRow(row, y) : this.drawCompactRow(row, y)
+    let y = 38
+    state.board.forEach((row, index) => {
+      if (index >= TOP_ROWS) return
+      if (row.gap) return
+      y += this.drawCompactRow(row, y)
     })
-  },
-
-  drawTopRow(row, y) {
-    const { ctx } = this
-    const medal = MEDAL_COLORS[row.rank - 1]
-    const h = 17
-    steppedRect(ctx, 7, y, 136, h, 2, row.rank === 1 ? COLORS.gold : COLORS.rowEdge)
-    steppedRect(ctx, 8, y + 1, 134, h - 2, 1, row.rank === 1 ? '#2a2518' : COLORS.row)
-
-    // Medal: stepped disc with the rank digit.
-    steppedRect(ctx, 11, y + 3, 11, 11, 2, medal)
-    drawNumber(ctx, String(row.rank), 16.5, y + 5.5, 1.2, COLORS.panel, 'center')
-
-    this.drawAvatar(row, 26, y + 3, 11, 8)
-    this.drawName(row.name, 41, y + 4.5, 9, 68)
-    drawNumber(ctx, formatCount(row.likes), 139, y + 5, 1.4, row.rank === 1 ? COLORS.gold : COLORS.text, 'right')
-    return h + 2
   },
 
   drawCompactRow(row, y) {
     const { ctx } = this
-    const h = 13
-    steppedRect(ctx, 7, y, 136, h, 2, COLORS.rowEdge)
-    steppedRect(ctx, 8, y + 1, 134, h - 2, 1, COLORS.row)
+    const h = 12
+    const isTop3 = row.rank <= 3 && !row.isLast
 
-    drawNumber(ctx, String(row.rank), 16.5, y + 4, 1, COLORS.muted, 'center')
-    this.drawAvatar(row, 26, y + 2, 9, 7)
-    this.drawName(row.name, 39, y + 3, 8, row.isLast ? 50 : 70)
-    drawNumber(ctx, formatCount(row.likes), 139, y + 4, 1, COLORS.text, 'right')
+    // Row background
+    ctx.fillStyle = COLORS.row
+    ctx.fillRect(5, y, 140, h)
 
-    if (row.isLast) {
-      ctx.save()
-      ctx.translate(106, y + 6.5)
-      ctx.rotate(-0.14)
-      ctx.strokeStyle = COLORS.accent
-      ctx.lineWidth = 0.8
-      ctx.strokeRect(-9, -4, 18, 8)
-      ctx.fillStyle = COLORS.accent
-      ctx.font = 'bold 6px sans-serif'
-      ctx.textAlign = 'center'
-      ctx.textBaseline = 'middle'
-      ctx.fillText('加油', 0, 0.3)
-      ctx.restore()
-      ctx.textBaseline = 'top'
+    // Border
+    ctx.fillStyle = COLORS.rowEdge
+    ctx.fillRect(5, y, 140, 1)
+
+    // Medal or rank number
+    if (isTop3) {
+      const medal = MEDAL_COLORS[row.rank - 1]
+      ctx.fillStyle = medal
+      ctx.fillRect(8, y + 2, 10, 8)
+      drawNumber(ctx, String(row.rank), 13, y + 2.5, 1, COLORS.panel, 'center')
+    } else {
+      drawNumber(ctx, String(row.rank), 13, y + 3.5, 0.9, COLORS.muted, 'center')
     }
-    return h + 2
+
+    // Avatar
+    this.drawAvatar(row, 21, y + 2, 8, 6)
+
+    // Name
+    this.drawName(row.name, 32, y + 3, 7, 60)
+
+    // Likes
+    drawNumber(ctx, formatCount(row.likes), 145, y + 3, 1.2, isTop3 ? COLORS.gold : COLORS.text, 'right')
+
+    return h + 1
   },
 
   drawAvatar(row, x, y, size, fontSize) {
@@ -329,7 +320,9 @@ Card({
     ctx.fillStyle = '#ffffff'
     ctx.font = `bold ${fontSize}px sans-serif`
     ctx.textAlign = 'center'
-    ctx.fillText(Array.from(row.name)[0] || '?', x + size / 2, y + (size - fontSize) / 2)
+    ctx.textBaseline = 'middle'
+    ctx.fillText(Array.from(row.name)[0] || '?', x + size / 2, y + size / 2)
+    ctx.textBaseline = 'top'
   },
 
   drawName(name, x, y, fontSize, maxWidth) {
@@ -384,10 +377,10 @@ function drawBitmap(ctx, rows, x, y, px, color) {
 // Draws digits, '.', and '%' as pixel glyphs; other characters (万/亿) use the
 // system font at matching height. `y` is the top of the glyphs.
 function drawNumber(ctx, text, x, y, px, color, align) {
-  const unitSize = 5 * px + 1
+  const unitSize = 4 * px + 0.5
   const chars = Array.from(text)
-  const widths = chars.map(ch => (GLYPHS[ch] ? GLYPHS[ch][0].length * px : unitSize))
-  const total = widths.reduce((sum, w) => sum + w, 0) + Math.max(0, chars.length - 1) * px
+  const widths = chars.map(ch => (GLYPHS[ch] ? GLYPHS[ch][0].length * px : unitSize * 1.2))
+  const total = widths.reduce((sum, w) => sum + w, 0) + Math.max(0, chars.length - 1) * px * 0.5
   let cursor = align === 'right' ? x - total : align === 'center' ? x - total / 2 : x
 
   chars.forEach((ch, i) => {
@@ -397,8 +390,8 @@ function drawNumber(ctx, text, x, y, px, color, align) {
       ctx.fillStyle = color
       ctx.font = `bold ${unitSize}px sans-serif`
       ctx.textAlign = 'left'
-      ctx.fillText(ch, cursor, y - px * 0.6)
+      ctx.fillText(ch, cursor, y)
     }
-    cursor += widths[i] + px
+    cursor += widths[i] + px * 0.5
   })
 }

@@ -1,9 +1,9 @@
 // Host-facing panel: configure the like goal, start/stop the live card,
 // and watch the same leaderboard the audience sees.
 
-// Must match the design size in live-card/game.js (150 × 200).
-const CARD_RATIO = 200 / 150
-const CARD_MAX_WIDTH = 160
+// Must match the design size in live-card/game.js (150 × 88).
+const CARD_RATIO = 88 / 150
+const CARD_MAX_WIDTH = 150
 const GOAL_OPTIONS = [
   { label: '自动升级', value: 'auto' },
   { label: '1万', value: 10000 },
