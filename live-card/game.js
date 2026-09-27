@@ -1,159 +1,205 @@
-// Audience-facing Live Card: Frosted Glassmorphism + Lightweight Pixel Art Widget
-// Aspect Ratio: 150px × 168px (flexible height, translucent glass backdrop, high legibility)
+// 喜鹊 · 街机点赞冲关 (Magpie Arcade Live HUD)
+// 专属设计语言：Neo-Arcade（复古街机像素 + 现代高清晰 HUD）
+// 核心设计规范：纯正 8-Bit 能量槽、双层浮雕像素边框、街机计分牌字模与荣誉冠名
 
 const DESIGN_WIDTH = 150
-const DESIGN_HEIGHT = 168
-const TOP_ROWS = 4
-const DRAW_THROTTLE_MS = 200
+const DESIGN_HEIGHT = 96
+const DRAW_THROTTLE_MS = 160
 const MAX_SEEN_MESSAGES = 2000
-const AUTO_TIERS = [1000, 10000, 100000, 500000, 1000000]
+const AUTO_TIERS = [1000, 10000, 50000, 100000, 500000, 1000000]
 
-const GLASS_THEME = {
-  // Translucent frosted glass layers
-  bgTop: 'rgba(255, 255, 255, 0.90)',
-  bgBottom: 'rgba(245, 247, 250, 0.78)',
-  borderLight: 'rgba(255, 255, 255, 0.95)',
-  borderDark: 'rgba(203, 213, 225, 0.55)',
-  innerBorder: 'rgba(255, 255, 255, 0.60)',
-  divider: 'rgba(226, 232, 240, 0.70)',
-  
-  // High-contrast modern typography
-  textPrimary: '#0f172a',
-  textSecondary: '#334155',
-  textMuted: '#64748b',
-  textSub: '#94a3b8',
-  
-  // Accents & energy
-  accent: '#ff2d55',
-  accentLight: '#ff758f',
-  accentGlass: 'rgba(255, 45, 85, 0.10)',
-  accentBorder: 'rgba(255, 45, 85, 0.25)',
-  
-  // Track & capsules
-  trackBg: 'rgba(0, 0, 0, 0.05)',
-  trackBorder: 'rgba(0, 0, 0, 0.06)',
-  
-  // Medals & rankings
-  goldBg: 'rgba(254, 243, 199, 0.88)',
-  goldBorder: 'rgba(245, 158, 11, 0.40)',
-  goldBadge: '#f59e0b',
-  goldText: '#b45309',
-  
-  silverBg: 'rgba(248, 250, 252, 0.75)',
-  silverBorder: 'rgba(203, 213, 225, 0.60)',
-  silverBadge: '#94a3b8',
-  silverText: '#475569',
-  
-  bronzeBg: 'rgba(255, 237, 213, 0.82)',
-  bronzeBorder: 'rgba(249, 115, 22, 0.35)',
-  bronzeBadge: '#ea580c',
-  bronzeText: '#c2410c',
-  
-  cheerBg: 'rgba(255, 241, 242, 0.82)',
-  cheerBorder: 'rgba(255, 45, 85, 0.30)',
+// 专属 Neo-Arcade 调色盘
+const ARCADE = {
+  // 机体底座与边框浮雕
+  chassis: '#0F121D',
+  bezelLight: '#3B4868',
+  bezelDark: '#1E2538',
+  screenBg: '#161B2E',
+  innerBorder: '#232B45',
+
+  // 街机霓虹核心色
+  coral: '#FF3366',       // 主力点赞光能
+  coralLight: '#FF6688',
+  gold: '#FFB800',        // 街机金币 / 榜首
+  goldLight: '#FFE082',
+  cyan: '#00E5FF',        // 关卡指示器
+  mint: '#00E5A3',        // 连击达成
+
+  // 能量槽 (Gauge)
+  gaugeSlot: '#121626',
+  gaugeGrid: '#2A3352',
+
+  // 文本与辅助
+  textWhite: '#F8FAFC',
+  textMuted: '#8D99AE',
+  textDark: '#0A0C14',
+  divider: '#232B45',
 }
 
-const AVATAR_COLORS = [
-  '#f43f5e', '#ec4899', '#8b5cf6', '#6366f1',
-  '#3b82f6', '#06b6d4', '#10b981', '#f59e0b',
+const AVATAR_PALETTE = [
+  '#FF3366', '#FF9900', '#FFCC00', '#00E5A3',
+  '#00E5FF', '#9D4EDD', '#F72585', '#4361EE',
 ]
 
-// 4x6 pixel font glyphs
-const GLYPHS = {
-  0: ['1111', '1001', '1001', '1001', '1001', '1111'],
-  1: ['0100', '1100', '0100', '0100', '0100', '1110'],
-  2: ['1111', '0001', '1111', '1000', '1000', '1111'],
-  3: ['1111', '0001', '1111', '0001', '0001', '1111'],
-  4: ['1001', '1001', '1111', '0001', '0001', '0001'],
-  5: ['1111', '1000', '1111', '0001', '0001', '1111'],
-  6: ['1111', '1000', '1111', '1001', '1001', '1111'],
-  7: ['1111', '0001', '0010', '0100', '0100', '0100'],
-  8: ['1111', '1001', '1111', '1001', '1001', '1111'],
-  9: ['1111', '1001', '1111', '0001', '0001', '1111'],
-  '.': ['0', '0', '0', '0', '0', '1'],
-  '%': ['1001', '0001', '0010', '0100', '1000', '1001'],
+// 5×7 经典街机高清字模（纯正像素，清晰度与复古感兼备）
+const ARCADE_GLYPHS = {
+  0: ['01110', '10001', '10011', '10101', '11001', '10001', '01110'],
+  1: ['00100', '01100', '00100', '00100', '00100', '00100', '01110'],
+  2: ['01110', '10001', '00001', '00110', '01000', '10000', '11111'],
+  3: ['11110', '00001', '00001', '01110', '00001', '00001', '11110'],
+  4: ['00010', '00110', '01010', '10010', '11111', '00010', '00010'],
+  5: ['11111', '10000', '11110', '00001', '00001', '10001', '01110'],
+  6: ['00110', '01000', '10000', '11110', '10001', '10001', '01110'],
+  7: ['11111', '00001', '00010', '00100', '01000', '01000', '01000'],
+  8: ['01110', '10001', '10001', '01110', '10001', '10001', '01110'],
+  9: ['01110', '10001', '10001', '01111', '00001', '00010', '01100'],
+  '.': ['0', '0', '0', '0', '0', '1', '1'],
+  '%': ['11001', '11010', '00100', '01000', '01011', '10011', '00000'],
+  '+': ['00000', '00100', '00100', '11111', '00100', '00100', '00000'],
 }
 
-// 7x6 pixel heart
-const HEART = [
-  '0110110',
-  '1111111',
-  '1111111',
-  '0111110',
-  '0011100',
-  '0001000',
+// 8×7 街机像素爱心 (Pixel Heart)
+const ICON_HEART = [
+  '01100110',
+  '11111111',
+  '11111111',
+  '11111111',
+  '01111110',
+  '00111100',
+  '00011000',
 ]
 
-// 7x5 pixel crown
-const CROWN = [
-  '1001001',
-  '1010101',
-  '1111111',
-  '1111111',
-  '0111110',
+// 9×6 街机像素皇冠 (Pixel Crown)
+const ICON_CROWN = [
+  '100010001',
+  '101010101',
+  '111111111',
+  '111111111',
+  '111111111',
+  '011111110',
 ]
 
-// 5x5 pixel star/sparkle
-const SPARKLE = [
-  '00100',
-  '01110',
+// 5×7 街机闪电能量 (Pixel Bolt)
+const ICON_BOLT = [
+  '00010',
+  '00110',
+  '01100',
   '11111',
-  '01110',
-  '00100',
+  '00110',
+  '01100',
+  '01000',
 ]
 
 function formatCount(value) {
-  if (value >= 100000000) return `${trimDecimal(value / 100000000)}亿`
-  if (value >= 10000) return `${trimDecimal(value / 10000)}万`
-  return String(value || 0)
+  const num = Number(value) || 0
+  if (num >= 100000000) return `${trimDecimal(num / 100000000)}亿`
+  if (num >= 10000) return `${trimDecimal(num / 10000)}万`
+  return String(num)
 }
 
-function trimDecimal(value) {
-  return value.toFixed(1).replace(/\.0$/, '')
+function trimDecimal(num) {
+  return num.toFixed(1).replace(/\.0$/, '')
 }
 
-function goalFor(mode, total) {
+function calcGoal(mode, totalLikes) {
+  const likes = Number(totalLikes) || 0
   if (mode !== 'auto') {
-    const remaining = Math.max(0, mode - total)
-    return { target: mode, level: total >= mode ? 1 : 0, remaining }
+    const target = Number(mode) || 10000
+    const remaining = Math.max(0, target - likes)
+    return { target, level: likes >= target ? 1 : 0, remaining }
   }
-  const tierIndex = AUTO_TIERS.findIndex(tier => total < tier)
-  if (tierIndex >= 0) {
-    const target = AUTO_TIERS[tierIndex]
-    return { target, level: tierIndex, remaining: target - total }
+  const tierIdx = AUTO_TIERS.findIndex(t => likes < t)
+  if (tierIdx >= 0) {
+    const target = AUTO_TIERS[tierIdx]
+    return { target, level: tierIdx + 1, remaining: target - likes }
   }
   const last = AUTO_TIERS[AUTO_TIERS.length - 1]
-  const extra = Math.floor((total - last) / 1000000) + 1
-  const target = last + extra * 1000000
-  return { target, level: AUTO_TIERS.length + extra - 1, remaining: target - total }
+  const extraTiers = Math.floor((likes - last) / 1000000) + 1
+  const target = last + extraTiers * 1000000
+  return { target, level: AUTO_TIERS.length + extraTiers, remaining: target - likes }
 }
 
-function rankViewers(viewers) {
-  return Array.from(viewers.values()).sort((a, b) => b.likes - a.likes || a.reachedSeq - b.reachedSeq)
+function getSortedViewers(viewersMap) {
+  return Array.from(viewersMap.values()).sort((a, b) => b.likes - a.likes || a.reachedSeq - b.reachedSeq)
 }
 
-function boardFor(ranked, topCount) {
-  const rows = ranked.slice(0, topCount).map((viewer, index) => ({ ...viewer, rank: index + 1 }))
-  if (ranked.length === topCount + 1) {
-    rows.push({ ...ranked[topCount], rank: topCount + 1 })
-  } else if (ranked.length > topCount + 1) {
-    rows.push({ ...ranked[ranked.length - 1], rank: ranked.length, isLast: true, gap: true })
-  }
-  return rows
-}
-
-function colorForId(id) {
+function getAvatarColor(id) {
   let hash = 0
   for (let i = 0; i < (id || '').length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0
-  return AVATAR_COLORS[hash % AVATAR_COLORS.length]
+  return AVATAR_PALETTE[hash % AVATAR_PALETTE.length]
+}
+
+// 绘制纯正像素位图
+function drawBitmap(ctx, rows, x, y, px, color) {
+  ctx.fillStyle = color
+  for (let r = 0; r < rows.length; r++) {
+    const row = rows[r]
+    for (let c = 0; c < row.length; c++) {
+      if (row[c] === '1') {
+        ctx.fillRect(Math.round(x + c * px), Math.round(y + r * px), px, px)
+      }
+    }
+  }
+}
+
+// 绘制街机点阵数字
+function drawArcadeNum(ctx, text, x, y, px, color, align) {
+  const chars = Array.from(String(text || '0'))
+  let totalWidth = 0
+  const charWidths = chars.map(ch => {
+    if (ARCADE_GLYPHS[ch]) {
+      return (ARCADE_GLYPHS[ch][0].length + 1) * px
+    }
+    // 汉字“万”或“亿”宽度
+    return 11 * px
+  })
+
+  totalWidth = charWidths.reduce((a, b) => a + b, 0)
+  let curX = align === 'right' ? x - totalWidth : align === 'center' ? x - totalWidth / 2 : x
+
+  chars.forEach((ch, idx) => {
+    if (ARCADE_GLYPHS[ch]) {
+      drawBitmap(ctx, ARCADE_GLYPHS[ch], curX, y, px, color)
+    } else {
+      // 汉字单位平滑微缩排版
+      ctx.fillStyle = color
+      ctx.font = `900 ${Math.round(7 * px)}px -apple-system, sans-serif`
+      ctx.textAlign = 'left'
+      ctx.textBaseline = 'top'
+      ctx.fillText(ch, curX, y)
+    }
+    curX += charWidths[idx]
+  })
+}
+
+// 绘制切角复古像素容器 (Pixel Chamfer Box)
+function drawPixelPanel(ctx, x, y, w, h, bg, border, highlight) {
+  // 切掉4个角的像素阶梯 (cut = 2px)
+  ctx.fillStyle = border
+  ctx.fillRect(x + 2, y, w - 4, h)
+  ctx.fillRect(x, y + 2, w, h - 4)
+  ctx.fillRect(x + 1, y + 1, w - 2, h - 2)
+
+  // 内部底色
+  ctx.fillStyle = bg
+  ctx.fillRect(x + 3, y + 1, w - 6, h - 2)
+  ctx.fillRect(x + 1, y + 3, w - 2, h - 6)
+  ctx.fillRect(x + 2, y + 2, w - 4, h - 4)
+
+  if (highlight) {
+    // 顶部与左侧像素高光条 (模拟街机立体按键浮雕)
+    ctx.fillStyle = highlight
+    ctx.fillRect(x + 3, y + 1, w - 6, 1)
+    ctx.fillRect(x + 1, y + 3, 1, h - 6)
+  }
 }
 
 Card({
-  // ---- Host Panel Interop ----
+  // ---- 主播端面板调用接口 ----
 
   getState() {
-    const ranked = rankViewers(this.viewers)
-    const goal = goalFor(this.goalMode, this.totalLikes)
+    const ranked = getSortedViewers(this.viewers)
+    const goal = calcGoal(this.goalMode, this.totalLikes)
     return {
       totalLikes: this.totalLikes,
       goalMode: this.goalMode,
@@ -161,16 +207,14 @@ Card({
       level: goal.level,
       remaining: goal.remaining,
       viewerCount: ranked.length,
-      board: boardFor(ranked, 6).map(({ id, name, likes, rank, isLast, gap }) => ({
-        id, name, likes, rank, isLast: !!isLast, gap: !!gap,
-      })),
-      top4: ranked.slice(0, 4).map((v, i) => ({ ...v, rank: i + 1 })),
+      topLeader: ranked[0] || null,
+      board: ranked.slice(0, 6).map((v, i) => ({ ...v, rank: i + 1 })),
       subscription: this.subscription,
     }
   },
 
   setGoalMode(mode) {
-    this.goalMode = mode === 'auto' ? 'auto' : Math.max(1, Math.floor(Number(mode) || 0))
+    this.goalMode = mode === 'auto' ? 'auto' : Math.max(1, Math.floor(Number(mode) || 10000))
     this.scheduleFlush()
   },
 
@@ -184,13 +228,14 @@ Card({
 
   handleLiveMessages(payload) {
     const messages = Array.isArray(payload) ? payload : [payload]
-    messages.forEach(message => this.applyLike(message))
+    messages.forEach(msg => this.applyLike(msg))
     this.scheduleFlush()
   },
 
   applyLike(message) {
     const likes = Number(message && message.like_num)
     if (!likes || isNaN(likes) || likes <= 0) return
+
     const msgId = message.msg_id
     if (msgId) {
       if (this.seenMessages.has(msgId)) return
@@ -199,9 +244,10 @@ Card({
         this.seenMessages.delete(this.seenMessages.values().next().value)
       }
     }
-    const id = message.sec_open_id || message.nickname || 'anonymous'
+
+    const id = message.sec_open_id || message.nickname || 'guest'
     const viewer = this.viewers.get(id) || { id, name: '', likes: 0 }
-    viewer.name = message.nickname || viewer.name || '神秘观众'
+    viewer.name = (message.nickname || viewer.name || '神秘玩家').trim()
     viewer.likes += likes
     viewer.reachedSeq = ++this.seq
     this.viewers.set(id, viewer)
@@ -213,7 +259,9 @@ Card({
     this.flushTimer = setTimeout(() => {
       this.flushTimer = null
       this.draw()
-      if (typeof this.onStateChange === 'function') this.onStateChange(this.getState())
+      if (typeof this.onStateChange === 'function') {
+        this.onStateChange(this.getState())
+      }
     }, DRAW_THROTTLE_MS)
   },
 
@@ -226,8 +274,8 @@ Card({
         tt.onReceiveLiveInteractPluginMessage(payload => this.handleLiveMessages(payload))
         this.scheduleFlush()
       },
-      fail: error => {
-        console.error('Live message subscription failed:', error)
+      fail: err => {
+        console.error('[喜鹊] 消息通道订阅失败:', err)
         this.subscription = attempt < 4 ? 'retrying' : 'failed'
         this.scheduleFlush()
         if (attempt < 4) setTimeout(() => this.subscribe(attempt + 1), 1000 * Math.pow(2, attempt))
@@ -235,7 +283,7 @@ Card({
     })
   },
 
-  // ---- Canvas Glass Rendering Engine ----
+  // ---- 街机 Canvas 绘制引擎 ----
 
   draw() {
     const { ctx } = this
@@ -243,261 +291,204 @@ Card({
     const height = this.cardHeight / scale
     const state = this.getState()
 
+    ctx.save()
     ctx.setTransform(this.pixelRatio * scale, 0, 0, this.pixelRatio * scale, 0, 0)
     ctx.clearRect(0, 0, DESIGN_WIDTH, height)
-    ctx.textBaseline = 'top'
 
-    this.drawGlassFrame(DESIGN_WIDTH, height)
-    this.drawGoalPod(state)
-    this.drawBoardPod(state, height)
+    // 1. 街机机壳主边框 (150 × 96)
+    this.drawArcadeChassis(DESIGN_WIDTH, height)
+
+    // 2. 上部：集气充能冲关模块 (y: 6 ~ 48)
+    this.drawArcadeStage(state)
+
+    // 3. 下部：MVP 榜首擂台 (y: 50 ~ 90)
+    this.drawArcadeMVP(state)
+
+    ctx.restore()
   },
 
-  // Multi-layer frosted glass backdrop with stepped pixel corners
-  drawGlassFrame(w, h) {
+  // 街机机壳与双层像素浮雕
+  drawArcadeChassis(w, h) {
     const { ctx } = this
-    const corner = 4
 
-    // 1. Translucent backdrop fill with gradient
-    const grad = ctx.createLinearGradient(0, 0, 0, h)
-    grad.addColorStop(0, GLASS_THEME.bgTop)
-    grad.addColorStop(1, GLASS_THEME.bgBottom)
+    // 最外层硬核街机底座
+    drawPixelPanel(ctx, 0, 0, w, h, ARCADE.chassis, ARCADE.bezelDark, ARCADE.bezelLight)
 
-    ctx.fillStyle = grad
-    ctx.fillRect(corner, 0, w - corner * 2, h)
-    ctx.fillRect(0, corner, w, h - corner * 2)
-
-    // Corner stepped fills
-    for (let i = 0; i < corner; i++) {
-      ctx.fillRect(i, corner - 1 - i, 1, 1)
-      ctx.fillRect(w - 1 - i, corner - 1 - i, 1, 1)
-      ctx.fillRect(i, h - corner + i, 1, 1)
-      ctx.fillRect(w - 1 - i, h - corner + i, 1, 1)
-    }
-
-    // 2. Glass Rim Highlights
-    ctx.fillStyle = GLASS_THEME.borderLight
-    ctx.fillRect(corner, 0, w - corner * 2, 1) // top highlight
-    ctx.fillRect(0, corner, 1, h - corner * 2) // left highlight
-
-    ctx.fillStyle = GLASS_THEME.borderDark
-    ctx.fillRect(corner, h - 1, w - corner * 2, 1) // bottom edge
-    ctx.fillRect(w - 1, corner, 1, h - corner * 2) // right edge
+    // 内嵌像素屏幕凹槽
+    drawPixelPanel(ctx, 4, 4, w - 8, h - 8, ARCADE.screenBg, ARCADE.innerBorder, null)
   },
 
-  // Top Section: Like Goal, Progress Capsule & Milestones (y: 6 ~ 46)
-  drawGoalPod(state) {
+  // 上部：街机关卡与 10 段式能量管 (y: 6 ~ 48)
+  drawArcadeStage(state) {
     const { ctx } = this
-    const progress = Math.min(1, state.totalLikes / state.target)
+    const progress = Math.min(1, state.totalLikes / (state.target || 1))
 
-    // Heart Icon with subtle glow
-    drawBitmap(ctx, HEART, 7, 7.5, 1, GLASS_THEME.accent)
+    // 1. 关卡徽章：[ STAGE 02 ] 像素卡槽
+    const stageStr = state.goalMode === 'auto' ? `STAGE ${String(state.level).padStart(2, '0')}` : 'STAGE BOSS'
+    ctx.fillStyle = ARCADE.chassis
+    ctx.fillRect(8, 8, 54, 11)
+    ctx.fillStyle = ARCADE.cyan
+    ctx.fillRect(8, 8, 2, 11) // 蓝条指示标
 
-    // Goal Header Title
-    ctx.fillStyle = GLASS_THEME.textPrimary
-    ctx.font = 'bold 8.5px sans-serif'
+    ctx.fillStyle = ARCADE.cyan
+    ctx.font = '900 8px -apple-system, monospace'
     ctx.textAlign = 'left'
-    ctx.fillText('点赞目标', 17, 6.5)
+    ctx.textBaseline = 'middle'
+    ctx.fillText(stageStr, 13, 13.5)
 
-    // Prominent Total Likes Count (Top Right)
-    drawNumber(ctx, formatCount(state.totalLikes), 143, 6, 1.4, GLASS_THEME.accent, 'right')
+    // 右侧大号计分板数字 (SCORE: 5.2万)
+    drawArcadeNum(ctx, formatCount(state.totalLikes), 141, 9, 1.2, ARCADE.coral, 'right')
 
-    // Capsule Progress Bar (10 Segmented Glow Blocks)
-    const barX = 7
-    const barY = 19
-    const totalSegments = 10
-    const segWidth = 8.5
-    const segGap = 1.3
-    const barW = totalSegments * (segWidth + segGap) - segGap
-    const lit = Math.round(progress * totalSegments)
+    // 2. 街机 10 格分段能量槽 (The 10-Segment Energy Gauge)
+    const gaugeX = 8
+    const gaugeY = 22
+    const totalBlocks = 10
+    const blockW = 11.5
+    const blockGap = 1.8
+    const blockH = 7
+    const litCount = Math.round(progress * totalBlocks)
 
-    // Track capsule background
-    ctx.fillStyle = GLASS_THEME.trackBg
-    ctx.fillRect(barX - 1, barY - 1, barW + 2, 7)
+    // 槽底座外框
+    ctx.fillStyle = ARCADE.gaugeSlot
+    ctx.fillRect(gaugeX - 1, gaugeY - 1, (blockW + blockGap) * totalBlocks - blockGap + 2, blockH + 2)
 
-    for (let i = 0; i < totalSegments; i++) {
-      const sx = barX + i * (segWidth + segGap)
-      const isLit = i < lit
-      ctx.fillStyle = isLit ? GLASS_THEME.accent : 'rgba(255, 255, 255, 0.7)'
-      ctx.fillRect(sx, barY, segWidth, 5)
+    for (let i = 0; i < totalBlocks; i++) {
+      const bx = gaugeX + i * (blockW + blockGap)
+      const isLit = i < litCount
+
       if (isLit) {
-        ctx.fillStyle = GLASS_THEME.accentLight
-        ctx.fillRect(sx, barY, segWidth, 1) // top glass sheen
+        // 点亮状态：从粉红到街机金的蓄力光色
+        ctx.fillStyle = i >= 8 ? ARCADE.gold : ARCADE.coral
+        ctx.fillRect(bx, gaugeY, blockW, blockH)
+        // 像素发光高光头
+        ctx.fillStyle = i >= 8 ? ARCADE.goldLight : ARCADE.coralLight
+        ctx.fillRect(bx, gaugeY, blockW, 1.5)
+      } else {
+        // 未充能状态：街机暗槽网格
+        ctx.fillStyle = ARCADE.gaugeGrid
+        ctx.fillRect(bx, gaugeY, blockW, blockH)
+        ctx.fillStyle = ARCADE.screenBg
+        ctx.fillRect(bx + 1, gaugeY + 1, blockW - 2, blockH - 2)
       }
     }
 
-    // Progress percentage on the right of bar
-    drawNumber(ctx, `${Math.floor(progress * 100)}%`, 143, 18.5, 1.1, GLASS_THEME.accent, 'right')
+    // 3. 破关差额指示 (y: 33)
+    drawBitmap(ctx, ICON_BOLT, 8, 33, 1, ARCADE.gold)
 
-    // Milestone Sub-info (y: 29)
-    // Left tier pill
-    const tierText = state.goalMode === 'auto' ? `已达${state.level}档` : '全员冲榜'
-    ctx.fillStyle = GLASS_THEME.accentGlass
-    ctx.fillRect(7, 28, 30, 9)
-    ctx.fillStyle = GLASS_THEME.accent
-    ctx.font = 'bold 6.5px sans-serif'
-    ctx.textAlign = 'center'
-    ctx.fillText(tierText, 22, 29.5)
+    ctx.font = 'bold 8.5px -apple-system, sans-serif'
+    ctx.textAlign = 'left'
+    ctx.textBaseline = 'middle'
+    if (state.remaining > 0) {
+      ctx.fillStyle = ARCADE.textMuted
+      ctx.fillText('距破关还差', 16, 36.5)
+      ctx.fillStyle = ARCADE.coral
+      ctx.fillText(`${formatCount(state.remaining)} 赞`, 60, 36.5)
+    } else {
+      ctx.fillStyle = ARCADE.mint
+      ctx.fillText('STAGE CLEAR! 突破晋级', 16, 36.5)
+    }
 
-    // Right remaining info
-    ctx.fillStyle = GLASS_THEME.textMuted
-    ctx.font = '6.5px sans-serif'
-    ctx.textAlign = 'right'
-    const subText = state.remaining > 0 ? `还差 ${formatCount(state.remaining)} 升级` : `目标 ${formatCount(state.target)} 已达成`
-    ctx.fillText(subText, 143, 29.5)
+    // 右侧百分比
+    drawArcadeNum(ctx, `${Math.floor(progress * 100)}%`, 141, 33.5, 0.9, ARCADE.textWhite, 'right')
 
-    // Frosted Divider Line
-    ctx.fillStyle = GLASS_THEME.divider
-    ctx.fillRect(7, 42, 136, 1)
+    // 4. 像素打孔分割线 (y: 44)
+    ctx.fillStyle = ARCADE.divider
+    for (let x = 8; x < 142; x += 4) {
+      ctx.fillRect(x, 44, 2, 1)
+    }
   },
 
-  // Bottom Section: Live Leaderboard Pod (y: 46 ~ 168)
-  drawBoardPod(state, height) {
+  // 下部：MVP 榜首擂台 (y: 48 ~ 88)
+  drawArcadeMVP(state) {
     const { ctx } = this
+    const leader = state.topLeader
 
-    // Crown Icon
-    drawBitmap(ctx, CROWN, 7, 47.5, 1, GLASS_THEME.goldBadge)
+    // MVP 展台底座
+    const mvpX = 8
+    const mvpY = 48
+    const mvpW = 134
+    const mvpH = 38
 
-    // Subtitle: "贡献榜"
-    ctx.fillStyle = GLASS_THEME.textSecondary
-    ctx.font = 'bold 8px sans-serif'
-    ctx.textAlign = 'left'
-    ctx.fillText('贡献榜', 17, 46.5)
+    drawPixelPanel(
+      ctx,
+      mvpX,
+      mvpY,
+      mvpW,
+      mvpH,
+      leader ? ARCADE.chassis : 'rgba(15, 18, 29, 0.6)',
+      leader ? ARCADE.gold : ARCADE.innerBorder,
+      leader ? 'rgba(255, 184, 0, 0.4)' : null
+    )
 
-    // Right participant counter
-    ctx.fillStyle = GLASS_THEME.textSub
-    ctx.font = '6.5px sans-serif'
-    ctx.textAlign = 'right'
-    const countNote = state.viewerCount > 0 ? `${state.viewerCount}人参与` : '虚位以待'
-    ctx.fillText(countNote, 143, 46.5)
+    // 场景 A：已有擂主大哥
+    if (leader) {
+      // 像素皇冠 (左上角)
+      drawBitmap(ctx, ICON_CROWN, 13, 53, 1.2, ARCADE.gold)
 
-    const list = state.top4 || []
-
-    if (list.length === 0) {
-      // Empty state
-      drawBitmap(ctx, SPARKLE, 73, 85, 1.2, GLASS_THEME.goldBadge)
-      ctx.fillStyle = GLASS_THEME.textMuted
-      ctx.font = 'bold 7.5px sans-serif'
+      // 像素头像色块框
+      const avX = 26
+      const avY = 54
+      const avSize = 13
+      ctx.fillStyle = getAvatarColor(leader.id)
+      ctx.fillRect(avX, avY, avSize, avSize)
+      // 头像内部字
+      ctx.fillStyle = '#FFFFFF'
+      ctx.font = 'bold 8.5px -apple-system, sans-serif'
       ctx.textAlign = 'center'
-      ctx.fillText('点赞上榜 · 成为第 1 名✨', DESIGN_WIDTH / 2, 102)
-      ctx.fillStyle = GLASS_THEME.textSub
-      ctx.font = '6.5px sans-serif'
-      ctx.fillText('轻点屏幕为全场助力', DESIGN_WIDTH / 2, 116)
+      ctx.textBaseline = 'middle'
+      ctx.fillText(Array.from(leader.name || '?')[0] || '?', avX + avSize / 2, avY + avSize / 2)
+
+      // 玩家昵称 (街机字体)
+      ctx.textAlign = 'left'
+      ctx.textBaseline = 'top'
+      ctx.fillStyle = ARCADE.textWhite
+      ctx.font = 'bold 9.5px -apple-system, sans-serif'
+      let name = leader.name || '神秘玩家'
+      if (ctx.measureText(name).width > 54) {
+        const chars = Array.from(name)
+        while (chars.length && ctx.measureText(`${chars.join('')}…`).width > 54) chars.pop()
+        name = `${chars.join('')}…`
+      }
+      ctx.fillText(name, 43, 54)
+
+      // 贡献数点阵
+      ctx.fillStyle = ARCADE.gold
+      ctx.font = 'bold 8.5px -apple-system, sans-serif'
+      ctx.fillText('贡献', 43, 67)
+      drawArcadeNum(ctx, formatCount(leader.likes), 64, 66.5, 0.9, ARCADE.gold, 'left')
+
+      // 右侧街机打榜按键 [ 抢榜 ]
+      ctx.fillStyle = ARCADE.coral
+      ctx.fillRect(108, 56, 28, 14)
+      ctx.fillStyle = ARCADE.coralLight
+      ctx.fillRect(108, 56, 28, 1)
+
+      ctx.fillStyle = '#FFFFFF'
+      ctx.font = '900 8px -apple-system, sans-serif'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillText('抢擂 >', 122, 63)
+
+      // 底部激励微文案
+      ctx.fillStyle = ARCADE.textMuted
+      ctx.font = '7.5px -apple-system, sans-serif'
+      ctx.textAlign = 'center'
+      ctx.fillText('双击连击 · 冲刺本场 MVP 👑', 75, 79)
       return
     }
 
-    // 4 Leaderboard Rows (y: 58, 80, 102, 124)
-    const rowYList = [58, 79.5, 101, 122.5]
-    for (let i = 0; i < TOP_ROWS; i++) {
-      const y = rowYList[i]
-      if (i < list.length) {
-        this.drawGlassRow(list[i], y, i)
-      } else {
-        this.drawEmptyGlassRow(y, i + 1)
-      }
-    }
+    // 场景 B：暂无擂主 (虚位以待，强号召)
+    drawBitmap(ctx, ICON_HEART, 16, 58, 1.2, ARCADE.coral)
 
-    // Bottom prompt tip
-    ctx.fillStyle = GLASS_THEME.textSub
-    ctx.font = '6.5px sans-serif'
-    ctx.textAlign = 'center'
-    ctx.fillText('轻触屏幕点赞 · 实时冲榜 ✨', DESIGN_WIDTH / 2, 149)
-  },
-
-  drawGlassRow(row, y, index) {
-    const { ctx } = this
-    const h = 18
-    const isTop1 = index === 0
-    const isTop2 = index === 1
-    const isTop3 = index === 2
-
-    let rowBg = GLASS_THEME.silverBg
-    let rowBorder = GLASS_THEME.silverBorder
-    let badgeBg = GLASS_THEME.silverBadge
-    let scoreColor = GLASS_THEME.silverText
-
-    if (isTop1) {
-      rowBg = GLASS_THEME.goldBg
-      rowBorder = GLASS_THEME.goldBorder
-      badgeBg = GLASS_THEME.goldBadge
-      scoreColor = GLASS_THEME.goldText
-    } else if (isTop3) {
-      rowBg = GLASS_THEME.bronzeBg
-      rowBorder = GLASS_THEME.bronzeBorder
-      badgeBg = GLASS_THEME.bronzeBadge
-      scoreColor = GLASS_THEME.bronzeText
-    } else if (row.isLast) {
-      rowBg = GLASS_THEME.cheerBg
-      rowBorder = GLASS_THEME.cheerBorder
-      badgeBg = GLASS_THEME.accent
-      scoreColor = GLASS_THEME.accent
-    }
-
-    // Glass row pill
-    ctx.fillStyle = rowBg
-    ctx.fillRect(7, y, 136, h)
-    ctx.fillStyle = rowBorder
-    ctx.fillRect(7, y, 136, 1)
-    ctx.fillRect(7, y + h - 1, 136, 1)
-    ctx.fillRect(7, y, 1, h)
-    ctx.fillRect(142, y, 1, h)
-
-    // Rank badge (11x11px)
-    ctx.fillStyle = badgeBg
-    ctx.fillRect(10, y + 3.5, 11, 11)
-    drawNumber(ctx, String(row.rank), 15.5, y + 4.5, 0.9, '#ffffff', 'center')
-
-    // Avatar (11x11px pastel block + initial)
-    this.drawAvatar(row, 24, y + 3.5, 11, 7.5)
-
-    // Name (Clean, legible font)
-    this.drawName(row.name, 38, y + 4.5, 8, 52)
-
-    // Likes count
-    drawNumber(ctx, formatCount(row.likes), 139, y + 4.5, 1.2, scoreColor, 'right')
-  },
-
-  drawEmptyGlassRow(y, rank) {
-    const { ctx } = this
-    const h = 18
-
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.40)'
-    ctx.fillRect(7, y, 136, h)
-    ctx.fillStyle = 'rgba(226, 232, 240, 0.40)'
-    ctx.fillRect(7, y, 136, 1)
-
-    // Muted rank
-    drawNumber(ctx, String(rank), 15.5, y + 4.5, 0.9, GLASS_THEME.textSub, 'center')
-
-    ctx.fillStyle = GLASS_THEME.textSub
-    ctx.font = '7px sans-serif'
     ctx.textAlign = 'left'
-    ctx.fillText('虚位以待 · 冲榜中~', 38, y + 5)
-  },
-
-  drawAvatar(row, x, y, size, fontSize) {
-    const { ctx } = this
-    ctx.fillStyle = colorForId(row.id)
-    ctx.fillRect(x, y, size, size)
-    ctx.fillStyle = '#ffffff'
-    ctx.font = `bold ${fontSize}px sans-serif`
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
-    ctx.fillText(Array.from(row.name || '?')[0] || '?', x + size / 2, y + size / 2)
     ctx.textBaseline = 'top'
-  },
+    ctx.fillStyle = ARCADE.gold
+    ctx.font = '900 9.5px -apple-system, sans-serif'
+    ctx.fillText('擂主虚位以待', 30, 56)
 
-  drawName(name, x, y, fontSize, maxWidth) {
-    const { ctx } = this
-    ctx.fillStyle = GLASS_THEME.textPrimary
-    ctx.font = `600 ${fontSize}px sans-serif`
-    ctx.textAlign = 'left'
-    let text = name || '神秘观众'
-    if (ctx.measureText(text).width > maxWidth) {
-      const chars = Array.from(text)
-      while (chars.length && ctx.measureText(`${chars.join('')}…`).width > maxWidth) chars.pop()
-      text = `${chars.join('')}…`
-    }
-    ctx.fillText(text, x, y)
+    ctx.fillStyle = ARCADE.textMuted
+    ctx.font = '8.5px -apple-system, sans-serif'
+    ctx.fillText('狂按屏幕连击 · 抢先登顶 MVP', 30, 69)
   },
 
   created(options) {
@@ -515,32 +506,3 @@ Card({
     this.subscribe(0)
   },
 })
-
-function drawBitmap(ctx, rows, x, y, px, color) {
-  ctx.fillStyle = color
-  rows.forEach((row, r) => {
-    for (let c = 0; c < row.length; c++) {
-      if (row[c] === '1') ctx.fillRect(x + c * px, y + r * px, px, px)
-    }
-  })
-}
-
-function drawNumber(ctx, text, x, y, px, color, align) {
-  const unitSize = 4 * px + 0.5
-  const chars = Array.from(String(text || '0'))
-  const widths = chars.map(ch => (GLYPHS[ch] ? GLYPHS[ch][0].length * px : unitSize * 1.2))
-  const total = widths.reduce((sum, w) => sum + w, 0) + Math.max(0, chars.length - 1) * px * 0.5
-  let cursor = align === 'right' ? x - total : align === 'center' ? x - total / 2 : x
-
-  chars.forEach((ch, i) => {
-    if (GLYPHS[ch]) {
-      drawBitmap(ctx, GLYPHS[ch], cursor, y, px, color)
-    } else {
-      ctx.fillStyle = color
-      ctx.font = `bold ${unitSize}px sans-serif`
-      ctx.textAlign = 'left'
-      ctx.fillText(ch, cursor, y)
-    }
-    cursor += widths[i] + px * 0.5
-  })
-}

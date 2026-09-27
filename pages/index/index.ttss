@@ -1,406 +1,273 @@
-/* ================= PAGE CONTAINER & THEME ================= */
+/* ================= NEO-ARCADE 主播控制台主题 ================= */
 page {
-  background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
+  background-color: #0c0f18;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  color: #0f172a;
+  color: #f8fafc;
 }
 
-.container {
+.arcade-console {
   min-height: 100vh;
   box-sizing: border-box;
-  padding: 16px 16px 100px;
+  padding: 16px 16px 108px;
 }
 
-/* ================= PIXEL ICONS (CSS Box Shadow) ================= */
-.px-icon {
-  position: relative;
-  width: 14px;
-  height: 12px;
-  margin-right: 8px;
-  flex-shrink: 0;
-}
-.px-icon::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 2px;
-  height: 2px;
-}
-.px-heart::before {
-  color: #ff2d55;
-  box-shadow:
-    2px 0, 4px 0, 8px 0, 10px 0,
-    0 2px, 2px 2px, 4px 2px, 6px 2px, 8px 2px, 10px 2px, 12px 2px,
-    0 4px, 2px 4px, 4px 4px, 6px 4px, 8px 4px, 10px 4px, 12px 4px,
-    2px 6px, 4px 6px, 6px 6px, 8px 6px, 10px 6px,
-    4px 8px, 6px 8px, 8px 8px, 6px 10px;
-}
-.px-crown::before {
-  color: #f59e0b;
-  box-shadow:
-    0 0, 6px 0, 12px 0,
-    0 2px, 2px 2px, 6px 2px, 10px 2px, 12px 2px,
-    0 4px, 2px 4px, 4px 4px, 6px 4px, 8px 4px, 10px 4px, 12px 4px,
-    0 6px, 2px 6px, 4px 6px, 6px 6px, 8px 6px, 10px 6px, 12px 6px;
-}
-.px-target::before {
-  color: #ff2d55;
-  box-shadow:
-    4px 0, 6px 0, 8px 0,
-    2px 2px, 10px 2px,
-    0 4px, 6px 4px, 12px 4px,
-    0 6px, 4px 6px, 6px 6px, 8px 6px, 12px 6px,
-    0 8px, 6px 8px, 12px 8px,
-    2px 10px, 10px 10px,
-    4px 12px, 6px 12px, 8px 12px;
-}
-.px-screen::before {
-  color: #6366f1;
-  box-shadow:
-    0 0, 2px 0, 4px 0, 6px 0, 8px 0, 10px 0, 12px 0,
-    0 2px, 12px 2px, 0 4px, 12px 4px, 0 6px, 12px 6px,
-    0 8px, 2px 8px, 4px 8px, 6px 8px, 8px 8px, 10px 8px, 12px 8px,
-    4px 10px, 6px 10px, 8px 10px;
-}
-.px-sparkle::before {
-  color: #ffffff;
-  box-shadow:
-    6px 0,
-    4px 2px, 6px 2px, 8px 2px,
-    0 4px, 2px 4px, 4px 4px, 6px 4px, 8px 4px, 10px 4px, 12px 4px,
-    4px 6px, 6px 6px, 8px 6px,
-    6px 8px;
-}
-
-/* ================= BRAND HERO ================= */
-.brand-hero {
+/* ================= 头部品牌展示 ================= */
+.arcade-hero {
   margin-bottom: 16px;
   padding: 4px 2px;
 }
-.brand-badge {
+.hero-brand {
   display: flex;
   align-items: center;
 }
-.brand-title {
+.hero-bolt {
   font-size: 18px;
-  font-weight: 800;
-  color: #0f172a;
+  color: #ff3366;
+  margin-right: 6px;
+}
+.hero-title {
+  font-size: 19px;
+  font-weight: 900;
+  color: #ffffff;
   letter-spacing: -0.3px;
 }
-.brand-subtitle {
+.hero-tag {
+  margin-left: 8px;
+  font-size: 10px;
+  font-weight: 900;
+  color: #0c0f18;
+  background: #00e5a3;
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+.hero-desc {
   display: block;
-  margin-top: 4px;
+  margin-top: 5px;
   font-size: 12px;
-  color: #475569;
+  color: #8d99ae;
 }
 
-/* ================= GLASS PANEL CONTAINER ================= */
-.card-box {
-  background: rgba(255, 255, 255, 0.88);
-  border: 1.5px solid rgba(255, 255, 255, 0.95);
-  border-radius: 12px;
-  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+/* ================= 街机切角卡片面板 (Chassis Panels) ================= */
+.arcade-card {
+  background: #141829;
+  border: 1.5px solid #232b45;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
   padding: 16px;
   margin-bottom: 16px;
+  position: relative;
 }
-.card-header {
+.card-head {
   display: flex;
   align-items: center;
   margin-bottom: 14px;
 }
-.card-title {
-  font-size: 15px;
-  font-weight: 700;
-  color: #0f172a;
+.head-icon {
+  font-size: 14px;
+  margin-right: 8px;
 }
-.card-tag {
+.head-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #ffffff;
+}
+.head-pill {
   margin-left: auto;
   font-size: 10px;
-  font-weight: 600;
-  color: #6366f1;
-  background: rgba(99, 102, 241, 0.08);
-  padding: 3px 7px;
+  font-weight: 700;
+  color: #00e5ff;
+  background: rgba(0, 229, 255, 0.12);
+  padding: 2px 8px;
   border-radius: 4px;
+  border: 1px solid rgba(0, 229, 255, 0.25);
 }
 
-/* ================= GOAL SELECTION CHIPS ================= */
-.chip-grid {
+/* ================= 街机切角选项芯片 (Arcade Chips) ================= */
+.chip-row {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
-.chip-item {
+.arcade-chip {
   position: relative;
   display: flex;
   align-items: center;
   padding: 8px 14px;
-  background: rgba(248, 250, 252, 0.9);
-  border: 1.5px solid #e2e8f0;
-  border-radius: 8px;
+  background: #1c223a;
+  border: 1.5px solid #2d3758;
+  border-radius: 6px;
   font-size: 13px;
-  font-weight: 600;
-  color: #334155;
+  font-weight: 700;
+  color: #c5cee0;
   transition: all 0.15s ease;
 }
-.chip-item:active {
+.arcade-chip:active {
   transform: translateY(1px);
 }
-.chip-active {
-  background: #fff1f2;
-  border-color: #ff2d55;
-  color: #ff2d55;
-  box-shadow: 0 2px 8px rgba(255, 45, 85, 0.15);
+.chip-on {
+  background: rgba(255, 51, 102, 0.15);
+  border-color: #ff3366;
+  color: #ff3366;
+  box-shadow: 0 0 10px rgba(255, 51, 102, 0.25);
 }
-.chip-tag {
+.chip-badge {
   margin-left: 6px;
   font-size: 9px;
-  background: #ff2d55;
+  background: #ff3366;
   color: #ffffff;
   padding: 1px 4px;
   border-radius: 3px;
-  font-weight: 700;
+  font-weight: 800;
 }
 
-/* Custom Goal Input */
-.custom-row {
+/* 自定义目标输入框 */
+.custom-input-row {
   display: flex;
   align-items: center;
   gap: 8px;
   margin-top: 10px;
 }
-.custom-input {
+.arcade-input {
   flex: 1;
   height: 38px;
   padding: 0 12px;
-  background: rgba(248, 250, 252, 0.9);
-  border: 1.5px solid #e2e8f0;
-  border-radius: 8px;
+  background: #0f121e;
+  border: 1.5px solid #2d3758;
+  border-radius: 6px;
   font-size: 13px;
-  color: #0f172a;
+  color: #ffffff;
 }
-.btn-custom {
+.btn-set-goal {
   height: 38px;
   line-height: 38px;
   padding: 0 16px;
-  background: #0f172a;
+  background: #232b45;
+  border: 1px solid #3b4868;
   color: #ffffff;
-  border-radius: 8px;
+  border-radius: 6px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
 }
-.btn-custom:active {
-  background: #1e293b;
+.btn-set-goal:active {
+  background: #2d3758;
 }
 
-.tip-box {
+.arcade-hint-box {
   display: flex;
   align-items: flex-start;
   margin-top: 12px;
-  padding: 8px 10px;
-  background: rgba(241, 245, 249, 0.8);
+  padding: 9px 12px;
+  background: rgba(0, 229, 255, 0.05);
+  border: 1px solid rgba(0, 229, 255, 0.15);
   border-radius: 6px;
 }
-.tip-icon {
+.hint-bolt {
+  color: #00e5ff;
   font-size: 12px;
   margin-right: 6px;
 }
-.tip-text {
+.hint-text {
   flex: 1;
   font-size: 11px;
-  color: #64748b;
-  line-height: 1.4;
+  color: #8d99ae;
+  line-height: 1.45;
 }
 
-/* ================= LIVE CARD PREVIEW WITH LIVE STREAM BACKDROP ================= */
-.preview-stage-live {
-  position: relative;
+/* ================= 街机挂件实播模拟展示 (Stage Preview) ================= */
+.arcade-stage {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 24px 0;
-  border-radius: 12px;
-  overflow: hidden;
-  background: #1e1b4b;
+  padding: 22px 0;
+  background: #0a0d16;
+  border-radius: 8px;
+  border: 1px dashed #232b45;
 }
 
-/* Simulated live stream backdrop */
-.stream-backdrop {
-  position: absolute;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at 80% 20%, #4338ca 0%, #1e1b4b 60%, #0f172a 100%);
-}
-.stream-circle {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(30px);
-  opacity: 0.6;
-}
-.stream-circle.c1 {
-  width: 140px;
-  height: 140px;
-  background: #ec4899;
-  top: -20px;
-  left: 10px;
-}
-.stream-circle.c2 {
-  width: 120px;
-  height: 120px;
-  background: #06b6d4;
-  bottom: -20px;
-  right: 20px;
-}
-.stream-badge {
-  position: absolute;
-  left: 10px;
-  top: 10px;
-  font-size: 9px;
-  color: rgba(255, 255, 255, 0.6);
-  background: rgba(0, 0, 0, 0.3);
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-
-/* 150x168 Scaled 1.4x (210px x 235.2px) Frosted Glass Card */
-.frosted-live-card {
-  position: relative;
-  z-index: 2;
+/* 150x96 挂件标准比例展示 (210px x 134.4px) */
+.mock-arcade-card {
   width: 210px;
   padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.85);
-  border: 1.5px solid rgba(255, 255, 255, 0.95);
-  border-radius: 10px;
-  box-shadow: 0 12px 32px 0 rgba(0, 0, 0, 0.25), 0 2px 6px rgba(0, 0, 0, 0.1);
+  background: #121526;
+  border: 2px solid #262b42;
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
   box-sizing: border-box;
 }
 
-.glass-head {
+.mock-top {
   display: flex;
   align-items: center;
+  justify-content: space-between;
 }
-.glass-heart {
-  color: #ff2d55;
-  font-size: 13px;
-  margin-right: 5px;
-}
-.glass-title {
-  font-size: 12px;
-  font-weight: 800;
-  color: #0f172a;
-}
-.glass-total {
-  margin-left: auto;
-  font-size: 15px;
+.mock-stage-pill {
+  font-size: 11px;
   font-weight: 900;
-  color: #ff2d55;
+  color: #00e5ff;
+  font-family: monospace;
+  background: #0f121d;
+  padding: 2px 6px;
+  border-left: 2px solid #00e5ff;
+}
+.mock-score {
+  font-size: 16px;
+  font-weight: 900;
+  color: #ff3366;
   font-family: monospace;
 }
 
-.glass-bar {
+.mock-gauge {
   display: flex;
   gap: 2px;
   margin-top: 6px;
   padding: 2px;
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 3px;
+  background: #0d101c;
 }
-.glass-seg {
+.mock-block {
   flex: 1;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.7);
-  border-radius: 1px;
+  height: 7px;
+  background: #1c2237;
 }
-.glass-seg-on {
-  background: #ff2d55;
-  box-shadow: 0 0 4px rgba(255, 45, 85, 0.4);
+.block-lit {
+  background: #ff3366;
 }
 
-.glass-meta {
+.mock-meta {
   display: flex;
   align-items: center;
-  margin-top: 5px;
-  font-size: 9.5px;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 10px;
 }
-.glass-tier-pill {
-  color: #ff2d55;
-  background: rgba(255, 45, 85, 0.1);
-  padding: 1px 4px;
-  border-radius: 3px;
-  font-weight: 700;
+.mock-diff {
+  color: #8d99ae;
+  font-weight: 600;
 }
-.glass-percent {
-  margin-left: 6px;
-  color: #ff2d55;
+.mock-pct {
+  color: #ffffff;
   font-weight: 800;
-}
-.glass-remaining {
-  margin-left: auto;
-  color: #64748b;
-  font-size: 9px;
+  font-family: monospace;
 }
 
-.glass-divider {
+.mock-divider {
   height: 1px;
-  background: rgba(226, 232, 240, 0.8);
-  margin: 8px 0;
+  background: #232b45;
+  margin: 7px 0;
 }
 
-.glass-board-head {
+.mock-mvp {
   display: flex;
   align-items: center;
-  margin-bottom: 6px;
+  padding: 4px 6px;
+  background: #0f121d;
+  border: 1px solid #ffb800;
+  border-radius: 4px;
 }
-.glass-crown {
+.mock-crown {
   font-size: 11px;
   margin-right: 4px;
 }
-.glass-board-title {
-  font-size: 11px;
-  font-weight: 800;
-  color: #334155;
-}
-.glass-count {
-  margin-left: auto;
-  font-size: 9px;
-  color: #94a3b8;
-}
-
-.glass-rows {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.glass-row {
-  display: flex;
-  align-items: center;
-  height: 22px;
-  padding: 0 6px;
-  background: rgba(248, 250, 252, 0.8);
-  border: 1px solid rgba(226, 232, 240, 0.7);
-  border-radius: 4px;
-  font-size: 10px;
-}
-.glass-row-1 {
-  background: rgba(254, 243, 199, 0.9);
-  border-color: rgba(245, 158, 11, 0.4);
-}
-.glass-medal {
-  width: 14px;
-  height: 14px;
-  line-height: 14px;
-  text-align: center;
-  font-size: 9px;
-  font-weight: 800;
-  color: #ffffff;
-  border-radius: 3px;
-}
-.glass-medal-1 { background: #f59e0b; }
-.glass-medal-2 { background: #94a3b8; }
-.glass-medal-3 { background: #ea580c; }
-.glass-avatar {
+.mock-avatar {
   width: 14px;
   height: 14px;
   line-height: 14px;
@@ -408,282 +275,285 @@ page {
   color: #ffffff;
   font-size: 9px;
   font-weight: 700;
-  border-radius: 3px;
-  margin: 0 6px;
+  border-radius: 2px;
+  margin-right: 6px;
 }
-.glass-name {
+.mock-mvp-info {
   flex: 1;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  color: #0f172a;
+  display: flex;
+  flex-direction: column;
+}
+.mock-name {
+  font-size: 10px;
+  font-weight: 700;
+  color: #ffffff;
+}
+.mock-likes {
+  font-size: 9px;
+  color: #ffb800;
   font-weight: 600;
 }
-.glass-likes {
-  margin-left: 6px;
-  font-weight: 800;
-  font-family: monospace;
-  color: #475569;
-}
-.glass-likes-gold {
-  color: #b45309;
-}
-
-.glass-tip {
-  margin-top: 7px;
-  text-align: center;
+.mock-tag {
   font-size: 9px;
-  color: #94a3b8;
+  font-weight: 900;
+  color: #ffffff;
+  background: #ff3366;
+  padding: 2px 6px;
+  border-radius: 2px;
 }
 
-/* ================= RUNNING STATE ================= */
-.status-bar {
+/* ================= 运行中状态栏 (Running HUD) ================= */
+.arcade-status-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
+  background: #141829;
+  border: 1.5px solid #232b45;
+  border-radius: 8px;
   margin-bottom: 14px;
 }
 .status-left {
   display: flex;
   align-items: center;
 }
-.pulse-dot {
+.arcade-led {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   margin-right: 8px;
 }
-.dot-online {
-  background: #10b981;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+.led-green {
+  background: #00e5a3;
+  box-shadow: 0 0 8px #00e5a3;
 }
-.dot-warn {
-  background: #f59e0b;
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+.led-yellow {
+  background: #ffb800;
+  box-shadow: 0 0 8px #ffb800;
 }
-.status-state {
+.status-title {
   font-size: 13px;
-  font-weight: 700;
-  color: #0f172a;
+  font-weight: 800;
+  color: #ffffff;
 }
 .status-timer {
   margin-left: 8px;
   font-size: 13px;
-  font-weight: 600;
-  color: #64748b;
+  font-weight: 700;
+  color: #8d99ae;
   font-family: monospace;
 }
-.visibility-badge {
+.status-badge {
   font-size: 11px;
-  padding: 4px 8px;
+  font-weight: 700;
+  padding: 3px 8px;
   border-radius: 4px;
-  font-weight: 600;
 }
-.badge-visible {
-  background: #dcfce7;
-  color: #15803d;
+.badge-on {
+  background: rgba(0, 229, 163, 0.15);
+  color: #00e5a3;
+  border: 1px solid rgba(0, 229, 163, 0.3);
 }
-.badge-hidden {
-  background: #f1f5f9;
-  color: #64748b;
+.badge-off {
+  background: rgba(141, 153, 174, 0.15);
+  color: #8d99ae;
+  border: 1px solid rgba(141, 153, 174, 0.3);
 }
 
-/* Stats Card */
-.stats-card {
+/* ================= 街机计分板监控大卡 (Scoreboard) ================= */
+.scoreboard-card {
   padding: 18px 16px;
 }
-.stats-top {
+.scoreboard-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
-.stats-label-group {
+.score-label-group {
   display: flex;
   align-items: center;
 }
-.stats-label {
+.score-bolt {
+  color: #ff3366;
   font-size: 14px;
-  font-weight: 700;
-  color: #0f172a;
+  margin-right: 6px;
 }
-.btn-edit-goal {
+.score-label {
+  font-size: 14px;
+  font-weight: 800;
+  color: #ffffff;
+}
+.btn-tune-goal {
   font-size: 12px;
-  color: #ff2d55;
-  font-weight: 600;
-  padding: 4px 8px;
-  background: #fff1f2;
+  font-weight: 700;
+  color: #ff3366;
+  padding: 3px 8px;
+  background: rgba(255, 51, 102, 0.12);
   border-radius: 4px;
 }
 
-.stats-hero {
+.scoreboard-hero {
   display: flex;
   align-items: baseline;
   margin-top: 10px;
 }
-.stats-hero-num {
-  font-size: 40px;
+.hero-num {
+  font-size: 42px;
   font-weight: 900;
-  color: #ff2d55;
+  color: #ff3366;
   font-family: monospace;
   line-height: 1;
+  text-shadow: 0 0 16px rgba(255, 51, 102, 0.3);
 }
-.stats-hero-unit {
+.hero-unit {
   margin-left: 8px;
   font-size: 13px;
-  color: #64748b;
-  font-weight: 600;
+  color: #8d99ae;
+  font-weight: 700;
 }
 
-.stats-progress-box {
+.gauge-monitor {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: 14px;
+  margin-top: 16px;
 }
-.progress-bar {
+.gauge-slot {
   flex: 1;
   display: flex;
   gap: 3px;
-  background: rgba(0, 0, 0, 0.04);
+  background: #0d101c;
   padding: 3px;
   border-radius: 4px;
 }
-.seg-block {
+.slot-block {
   flex: 1;
   height: 10px;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 2px;
+  background: #1c2237;
+  border-radius: 1px;
 }
-.seg-lit {
-  background: #ff2d55;
-  box-shadow: 0 0 6px rgba(255, 45, 85, 0.4);
+.slot-lit {
+  background: #ff3366;
+  box-shadow: 0 0 6px rgba(255, 51, 102, 0.5);
 }
-.progress-percent {
+.gauge-pct {
   font-size: 18px;
-  font-weight: 800;
-  color: #ff2d55;
+  font-weight: 900;
+  color: #ff3366;
   font-family: monospace;
   width: 48px;
   text-align: right;
 }
 
-.stats-footer-info {
+.stage-info-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 10px;
+  margin-top: 12px;
   font-size: 12px;
-  color: #64748b;
+  color: #8d99ae;
 }
-.stats-tier-badge {
-  background: #fef3c7;
-  color: #b45309;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-weight: 600;
-  font-size: 11px;
+.players-count {
+  font-weight: 700;
+  color: #00e5ff;
 }
 
-.inline-editor {
+.inline-tuner {
   margin-top: 16px;
   padding-top: 14px;
-  border-top: 1px dashed #cbd5e1;
+  border-top: 1px dashed #232b45;
 }
-.inline-editor-title {
+.tuner-title {
   font-size: 12px;
-  font-weight: 700;
-  color: #334155;
+  font-weight: 800;
+  color: #c5cee0;
   margin-bottom: 8px;
 }
 
-/* Leaderboard rows in panel */
-.board-card {
-  padding: 16px;
-}
-.board-body {
+/* ================= 实时点赞贡献榜 (Leaderboard) ================= */
+.board-container {
   margin-top: 8px;
 }
-.board-row {
+.arcade-row {
   display: flex;
   align-items: center;
   height: 38px;
   margin-bottom: 6px;
   padding: 0 10px;
-  background: rgba(248, 250, 252, 0.9);
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  background: #181d33;
+  border: 1px solid #232b45;
+  border-radius: 6px;
   font-size: 13px;
 }
-.board-row-top {
+.arcade-row-top {
   height: 42px;
 }
-.board-row-gold {
-  background: rgba(254, 243, 199, 0.9);
-  border-color: rgba(245, 158, 11, 0.4);
+.arcade-row-gold {
+  background: rgba(255, 184, 0, 0.08);
+  border-color: #ffb800;
 }
-.medal {
+.arcade-medal {
   width: 20px;
   height: 20px;
   line-height: 20px;
   text-align: center;
-  color: #ffffff;
+  color: #0c0f18;
   font-size: 11px;
-  font-weight: 800;
-  border-radius: 4px;
+  font-weight: 900;
+  border-radius: 3px;
 }
-.medal-1 { background: #f59e0b; }
-.medal-2 { background: #94a3b8; }
-.medal-3 { background: #ea580c; }
-.rank-num {
+.medal-1 { background: #ffb800; }
+.medal-2 { background: #c5cee0; }
+.medal-3 { background: #ff9900; }
+.arcade-rank {
   width: 20px;
   text-align: center;
-  color: #94a3b8;
+  color: #8d99ae;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 800;
   font-family: monospace;
 }
-.avatar-block {
+.arcade-avatar {
   width: 24px;
   height: 24px;
   line-height: 24px;
   text-align: center;
   color: #ffffff;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 800;
   border-radius: 4px;
   margin: 0 10px;
 }
-.name-text {
+.arcade-name {
   flex: 1;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  color: #0f172a;
-  font-weight: 600;
+  color: #ffffff;
+  font-weight: 700;
 }
-.likes-text {
+.arcade-score {
   margin-left: 8px;
-  font-weight: 800;
+  font-weight: 900;
   font-family: monospace;
-  color: #334155;
+  color: #c5cee0;
   font-size: 13px;
 }
-.likes-gold {
-  color: #b45309;
+.score-gold {
+  color: #ffb800;
 }
-.cheer-badge {
+.arcade-cheer {
   margin-left: 6px;
   padding: 1px 6px;
-  background: #fff1f2;
-  border: 1px solid #ff2d55;
-  color: #ff2d55;
+  background: rgba(255, 51, 102, 0.15);
+  border: 1px solid #ff3366;
+  color: #ff3366;
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 800;
   border-radius: 3px;
 }
 
-.board-gap {
+.arcade-gap {
   display: flex;
   justify-content: center;
   padding: 4px 0;
@@ -692,14 +562,13 @@ page {
   display: flex;
   gap: 4px;
 }
-.dot {
+.px-dot {
   width: 3px;
   height: 3px;
-  background: #cbd5e1;
-  border-radius: 50%;
+  background: #3b4868;
 }
 
-.board-empty {
+.board-empty-state {
   padding: 30px 0;
   text-align: center;
 }
@@ -709,28 +578,26 @@ page {
 }
 .empty-text {
   font-size: 12px;
-  color: #94a3b8;
+  color: #8d99ae;
 }
 
-.reset-action {
+.btn-reset-data {
   margin-top: 14px;
   padding: 10px 0;
   text-align: center;
-  background: rgba(248, 250, 252, 0.8);
-  border: 1px dashed #cbd5e1;
-  border-radius: 8px;
-}
-.reset-text {
+  background: #181d33;
+  border: 1px dashed #3b4868;
+  border-radius: 6px;
   font-size: 12px;
-  color: #64748b;
-  font-weight: 600;
+  color: #8d99ae;
+  font-weight: 700;
 }
-.reset-action:active {
-  background: #f1f5f9;
+.btn-reset-data:active {
+  background: #232b45;
 }
 
-/* ================= BOTTOM BAR & BUTTONS ================= */
-.bottom-bar {
+/* ================= 底部操作控制台 (Bottom Dock) ================= */
+.arcade-bottom-dock {
   position: fixed;
   left: 0;
   right: 0;
@@ -738,39 +605,40 @@ page {
   display: flex;
   gap: 12px;
   padding: 12px 16px env(safe-area-inset-bottom, 20px);
-  background: rgba(255, 255, 255, 0.92);
-  border-top: 1px solid rgba(226, 232, 240, 0.8);
-  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.04);
+  background: #0c0f18;
+  border-top: 1.5px solid #232b45;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.6);
 }
 
-.btn-pixel {
+.arcade-btn {
   flex: 1;
   height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 800;
   transition: all 0.15s ease;
 }
-.btn-pixel:active {
+.arcade-btn:active {
   transform: translateY(1px);
 }
 
-.btn-primary {
-  background: linear-gradient(135deg, #ff2d55 0%, #ff5277 100%);
+.btn-launch {
+  background: #ff3366;
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(255, 45, 85, 0.3);
+  box-shadow: 0 4px 14px rgba(255, 51, 102, 0.4);
 }
 
-.btn-ghost {
-  background: rgba(248, 250, 252, 0.9);
-  color: #0f172a;
-  border: 1.5px solid #cbd5e1;
+.btn-toggle {
+  background: #1c223a;
+  color: #ffffff;
+  border: 1.5px solid #3b4868;
 }
 
-.btn-danger {
-  background: #0f172a;
-  color: #ffffff;
+.btn-close {
+  background: #141829;
+  color: #ff3366;
+  border: 1.5px solid #ff3366;
 }

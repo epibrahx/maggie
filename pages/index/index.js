@@ -1,61 +1,62 @@
-// Host-facing panel: configure like goals, monitor real-time stats and leaderboard,
-// and control live card visibility and lifecycle.
+// 喜鹊 · 街机点赞冲关 (Host-facing Console)
+// 商业级互动控制台：配置冲关关卡、监控实时点赞推流数据、控制直播间挂件生命周期
 
 const CARD_DESIGN_WIDTH = 150
-const CARD_DESIGN_HEIGHT = 168
+const CARD_DESIGN_HEIGHT = 96
 const CARD_RATIO = CARD_DESIGN_HEIGHT / CARD_DESIGN_WIDTH
 const CARD_MAX_WIDTH = 150
 
 const GOAL_OPTIONS = [
-  { label: '自动升级', value: 'auto', tag: '推荐' },
-  { label: '1万', value: 10000 },
-  { label: '10万', value: 100000 },
-  { label: '50万', value: 500000 },
-  { label: '100万', value: 1000000 },
+  { label: '智能连环关', value: 'auto', tag: '推荐' },
+  { label: '1万赞', value: 10000 },
+  { label: '5万赞', value: 50000 },
+  { label: '10万赞', value: 100000 },
+  { label: '50万赞', value: 500000 },
 ]
 
-const SAMPLE_BOARD = [
-  { id: 'a', name: '清风徐来', likes: 12000, rank: 1 },
-  { id: 'b', name: '星空漫步', likes: 8640, rank: 2 },
-  { id: 'c', name: '快乐小狗', likes: 5210, rank: 3 },
-  { id: 'd', name: '月下独酌', likes: 3102, rank: 4 },
-  { id: 'e', name: '小橘子', likes: 2877, rank: 5 },
-  { id: 'f', name: '路过的风', likes: 1, rank: 128, isLast: true, gap: true },
+const SAMPLE_LEADERBOARD = [
+  { id: 'u1', name: '清风徐来', likes: 12000, rank: 1 },
+  { id: 'u2', name: '星空漫步', likes: 8640, rank: 2 },
+  { id: 'u3', name: '快乐小狗', likes: 5210, rank: 3 },
+  { id: 'u4', name: '月下独酌', likes: 3102, rank: 4 },
+  { id: 'u5', name: '小橘子', likes: 2877, rank: 5 },
+  { id: 'u6', name: '路过的风', likes: 1, rank: 128, isLast: true, gap: true },
 ]
 
-const AVATAR_COLORS = [
-  '#f43f5e', '#ec4899', '#8b5cf6', '#6366f1',
-  '#3b82f6', '#06b6d4', '#10b981', '#f59e0b',
+const AVATAR_PALETTE = [
+  '#FF3366', '#FF9900', '#FFCC00', '#00E5A3',
+  '#00E5FF', '#9D4EDD', '#F72585', '#4361EE',
 ]
 
 function formatCount(value) {
-  if (value >= 100000000) return `${trimDecimal(value / 100000000)}亿`
-  if (value >= 10000) return `${trimDecimal(value / 10000)}万`
-  return String(value || 0)
+  const num = Number(value) || 0
+  if (num >= 100000000) return `${trimDecimal(num / 100000000)}亿`
+  if (num >= 10000) return `${trimDecimal(num / 10000)}万`
+  return String(num)
 }
 
-function trimDecimal(value) {
-  return value.toFixed(1).replace(/\.0$/, '')
+function trimDecimal(num) {
+  return num.toFixed(1).replace(/\.0$/, '')
 }
 
-function colorForId(id) {
+function getAvatarColor(id) {
   let hash = 0
   for (let i = 0; i < (id || '').length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0
-  return AVATAR_COLORS[hash % AVATAR_COLORS.length]
+  return AVATAR_PALETTE[hash % AVATAR_PALETTE.length]
 }
 
-function boardView(board) {
-  return (board || []).map(row => ({
+function formatBoardView(list) {
+  return (list || []).map(row => ({
     ...row,
     initial: Array.from(row.name || '?')[0] || '?',
-    color: colorForId(row.id),
+    color: getAvatarColor(row.id),
     likesText: formatCount(row.likes),
     medal: row.rank <= 3 && !row.isLast ? row.rank : 0,
   }))
 }
 
-function pad(value) {
-  return String(value).padStart(2, '0')
+function padZero(num) {
+  return String(num).padStart(2, '0')
 }
 
 Page({
@@ -75,11 +76,11 @@ Page({
     percent: 0,
     litSegments: 0,
     segments: Array.from({ length: 10 }, (_, i) => i),
-    level: 0,
+    level: 1,
     viewerCount: 0,
     board: [],
-    sampleBoard: boardView(SAMPLE_BOARD),
-    sampleTop4: boardView(SAMPLE_BOARD.slice(0, 4)),
+    sampleBoard: formatBoardView(SAMPLE_LEADERBOARD),
+    sampleMVP: formatBoardView(SAMPLE_LEADERBOARD)[0],
     subscription: 'connecting',
   },
 
@@ -87,7 +88,7 @@ Page({
     if (this.timer) clearInterval(this.timer)
   },
 
-  // ---- Goal Config ----
+  // ---- 冲关模式配置 ----
 
   selectGoal(event) {
     const value = event.currentTarget.dataset.value
@@ -101,7 +102,7 @@ Page({
   confirmCustomGoal() {
     const value = Math.floor(Number(this.data.customGoal))
     if (!value || value < 1) {
-      tt.showToast({ title: '请输入大于 0 的有效数字', icon: 'none' })
+      tt.showToast({ title: '请输入有效的点赞数字', icon: 'none' })
       return
     }
     this.applyGoal(value)
@@ -112,7 +113,7 @@ Page({
     this.setData({ goalMode: mode, editingGoal: false })
     if (this.card) {
       this.card.setGoalMode(mode)
-      tt.showToast({ title: '目标已更新', icon: 'success' })
+      tt.showToast({ title: '关卡目标已更新', icon: 'success' })
     }
   },
 
@@ -120,18 +121,18 @@ Page({
     this.setData({ editingGoal: !this.data.editingGoal })
   },
 
-  // ---- Card Lifecycle ----
+  // ---- 挂件生命周期管控 ----
 
   startGame() {
-    tt.showLoading({ title: '开启中...' })
+    tt.showLoading({ title: '正在挂载挂件...' })
     tt.getLiveRoomCardInfo({
       success: ({ liveCardMaxWidth, liveCardMaxHeight }) => {
         tt.hideLoading()
         this.createCard(liveCardMaxWidth, liveCardMaxHeight)
       },
-      fail: error => {
+      fail: err => {
         tt.hideLoading()
-        console.error('getLiveRoomCardInfo failed:', error)
+        console.error('[喜鹊] 获取房间尺寸失败:', err)
         this.createCard(CARD_MAX_WIDTH, CARD_MAX_WIDTH * CARD_RATIO)
       },
     })
@@ -153,11 +154,11 @@ Page({
         this.timer = setInterval(() => this.tickElapsed(), 1000)
         this.setData({ running: true, cardHidden: false, elapsed: '00:00:00' })
         this.renderState(cardContext.getState())
-        tt.showToast({ title: '毛玻璃互动卡已开启', icon: 'success' })
+        tt.showToast({ title: '挂件已成功上屏', icon: 'success' })
       },
-      fail: error => {
-        console.error('createLiveCard failed:', error)
-        tt.showToast({ title: '开启卡片失败，请重试', icon: 'none' })
+      fail: err => {
+        console.error('[喜鹊] 挂件创建失败:', err)
+        tt.showToast({ title: '挂件上屏失败，请重试', icon: 'none' })
       },
     })
   },
@@ -165,22 +166,22 @@ Page({
   toggleCardVisible() {
     if (!this.card) return
     const hide = !this.data.cardHidden
-    const done = () => {
+    const onDone = () => {
       this.setData({ cardHidden: hide })
-      tt.showToast({ title: hide ? '卡片已隐藏' : '卡片已展示', icon: 'none' })
+      tt.showToast({ title: hide ? '挂件已暂时隐藏' : '挂件已恢复展示', icon: 'none' })
     }
     if (hide) {
-      this.card.hide({ success: done, fail: () => tt.showToast({ title: '操作失败', icon: 'none' }) })
+      this.card.hide({ success: onDone, fail: () => tt.showToast({ title: '操作失败', icon: 'none' }) })
     } else {
-      this.card.show({ success: done, fail: () => tt.showToast({ title: '操作失败', icon: 'none' }) })
+      this.card.show({ success: onDone, fail: () => tt.showToast({ title: '操作失败', icon: 'none' }) })
     }
   },
 
   resetSession() {
     tt.showModal({
       title: '重置本场数据',
-      content: '重置后点赞数及点赞榜将立即清零，确定清空吗？',
-      confirmColor: '#ff2d55',
+      content: '重置后本场点赞记录与贡献榜将清零归一，确定重置吗？',
+      confirmColor: '#FF3366',
       success: ({ confirm }) => {
         if (confirm && this.card) {
           this.card.resetSession()
@@ -192,9 +193,9 @@ Page({
 
   closeGame() {
     tt.showModal({
-      title: '结束互动玩法',
-      content: '确定结束并移除直播间卡片吗？本场数据将不会保留。',
-      confirmColor: '#ff2d55',
+      title: '下架并结束玩法',
+      content: '下架后挂件将从直播间移除，确定结束本场互动吗？',
+      confirmColor: '#FF3366',
       success: ({ confirm }) => {
         if (confirm) {
           if (this.timer) clearInterval(this.timer)
@@ -204,7 +205,7 @@ Page({
     })
   },
 
-  // ---- State & Time Sync ----
+  // ---- 数据同步与计时器 ----
 
   renderState(state) {
     if (!state) return
@@ -217,17 +218,17 @@ Page({
       remainingText: formatCount(state.remaining),
       percent: Math.floor(progress * 100),
       litSegments: Math.round(progress * 10),
-      level: state.level || 0,
+      level: state.level || 1,
       viewerCount: state.viewerCount || 0,
-      board: boardView(state.board),
+      board: formatBoardView(state.board),
       subscription: state.subscription || 'connected',
     })
   },
 
   tickElapsed() {
-    const seconds = Math.floor((Date.now() - this.startedAt) / 1000)
+    const sec = Math.floor((Date.now() - this.startedAt) / 1000)
     this.setData({
-      elapsed: `${pad(Math.floor(seconds / 3600))}:${pad(Math.floor((seconds % 3600) / 60))}:${pad(seconds % 60)}`,
+      elapsed: `${padZero(Math.floor(sec / 3600))}:${padZero(Math.floor((sec % 3600) / 60))}:${padZero(sec % 60)}`,
     })
   },
 })

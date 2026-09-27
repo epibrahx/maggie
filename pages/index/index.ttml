@@ -1,232 +1,214 @@
-<!-- Template for leaderboard rows in panel -->
+<!-- 榜单列表项模板 (Neo-Arcade Style) -->
 <template name="board-item">
   <block tt:for="{{rows}}" tt:key="id">
-    <view tt:if="{{item.gap}}" class="board-gap">
+    <view tt:if="{{item.gap}}" class="arcade-gap">
       <view class="gap-dots">
-        <view class="dot"></view><view class="dot"></view><view class="dot"></view>
+        <view class="px-dot"></view><view class="px-dot"></view><view class="px-dot"></view>
       </view>
     </view>
-    <view class="board-row {{item.medal ? 'board-row-top' : ''}} {{item.medal === 1 ? 'board-row-gold' : ''}}">
-      <view tt:if="{{item.medal}}" class="medal medal-{{item.medal}}">{{item.rank}}</view>
-      <text tt:else class="rank-num">{{item.rank}}</text>
+    <view class="arcade-row {{item.medal ? 'arcade-row-top' : ''}} {{item.medal === 1 ? 'arcade-row-gold' : ''}}">
+      <view tt:if="{{item.medal}}" class="arcade-medal medal-{{item.medal}}">{{item.rank}}</view>
+      <text tt:else class="arcade-rank">{{item.rank}}</text>
       
-      <view class="avatar-block" style="background-color: {{item.color}}">
-        <text class="avatar-text">{{item.initial}}</text>
+      <view class="arcade-avatar" style="background-color: {{item.color}}">
+        <text class="avatar-char">{{item.initial}}</text>
       </view>
       
-      <text class="name-text">{{item.name}}</text>
-      <text tt:if="{{item.isLast}}" class="cheer-badge">加油</text>
-      <text class="likes-text {{item.medal === 1 ? 'likes-gold' : ''}}">{{item.likesText}}</text>
+      <text class="arcade-name">{{item.name}}</text>
+      <text tt:if="{{item.isLast}}" class="arcade-cheer">冲榜</text>
+      <text class="arcade-score {{item.medal === 1 ? 'score-gold' : ''}}">{{item.likesText}}</text>
     </view>
   </block>
 </template>
 
-<view class="container {{running ? 'container-running' : ''}}">
+<view class="arcade-console {{running ? 'console-running' : ''}}">
   
-  <!-- ================= IDLE STATE ================= -->
+  <!-- ================= 未上屏配置状态 (IDLE) ================= -->
   <block tt:if="{{!running}}">
-    <!-- Brand Header -->
-    <view class="brand-hero">
-      <view class="brand-badge">
-        <view class="px-icon px-heart"></view>
-        <text class="brand-title">喜鹊 · 毛玻璃互动卡</text>
+    <!-- 品牌与商业价值 Header -->
+    <view class="arcade-hero">
+      <view class="hero-brand">
+        <view class="hero-bolt">⚡</view>
+        <text class="hero-title">喜鹊 · 街机点赞冲关</text>
+        <text class="hero-tag">PRO</text>
       </view>
-      <text class="brand-subtitle">半透明毛玻璃微卡 · 点赞目标与实时贡献榜</text>
+      <text class="hero-desc">全自动点赞连击挂件 · 提升直播间互动留存与算法推流</text>
     </view>
 
-    <!-- Section 1: Goal Config -->
-    <view class="card-box glass-panel">
-      <view class="card-header">
-        <view class="px-icon px-target"></view>
-        <text class="card-title">点赞目标设定</text>
+    <!-- 模块 1：关卡目标设置 -->
+    <view class="arcade-card">
+      <view class="card-head">
+        <view class="head-icon">🎯</view>
+        <text class="head-title">冲关模式设置</text>
       </view>
 
-      <view class="chip-grid">
+      <view class="chip-row">
         <view tt:for="{{goalOptions}}" tt:key="value" 
-              class="chip-item {{goalMode === item.value ? 'chip-active' : ''}}" 
+              class="arcade-chip {{goalMode === item.value ? 'chip-on' : ''}}" 
               data-value="{{item.value}}" 
               bindtap="selectGoal">
-          <text class="chip-label">{{item.label}}</text>
-          <text tt:if="{{item.tag}}" class="chip-tag">{{item.tag}}</text>
+          <text class="chip-text">{{item.label}}</text>
+          <text tt:if="{{item.tag}}" class="chip-badge">{{item.tag}}</text>
         </view>
       </view>
 
-      <view class="custom-row">
-        <input class="custom-input" 
+      <view class="custom-input-row">
+        <input class="arcade-input" 
                type="number" 
-               placeholder="自定义点赞目标 (如 50000)" 
+               placeholder="自定义单关点赞目标 (如 50000)" 
                value="{{customGoal}}" 
                bindinput="inputCustomGoal" />
-        <view class="btn-custom" bindtap="confirmCustomGoal">设定</view>
+        <view class="btn-set-goal" bindtap="confirmCustomGoal">应用</view>
       </view>
 
-      <view class="tip-box">
-        <text class="tip-icon">💡</text>
-        <text class="tip-text">{{goalMode === 'auto' ? '自动档位：1千 → 1万 → 10万 → 50万 → 100万（每阶递增）' : '当前固定目标：' + goalMode + ' 点赞'}}</text>
+      <view class="arcade-hint-box">
+        <text class="hint-bolt">⚡</text>
+        <text class="hint-text">{{goalMode === 'auto' ? '智能连环关：1千 → 1万 → 5万 → 10万 → 50万（每达成一阶自动升级，全场播报破关喜讯）' : '当前固定目标：' + goalMode + ' 点赞即可通关'}}</text>
       </view>
     </view>
 
-    <!-- Section 2: Live Card Preview (With Live Video Simulation Backdrop) -->
-    <view class="card-box glass-panel">
-      <view class="card-header">
-        <view class="px-icon px-screen"></view>
-        <text class="card-title">观众端毛玻璃卡片预览</text>
-        <text class="card-tag">150×168 半透明</text>
+    <!-- 模块 2：挂件实播呈现 (1:1 街机挂件) -->
+    <view class="arcade-card">
+      <view class="card-head">
+        <view class="head-icon">📺</view>
+        <text class="head-title">直播间挂件效果</text>
+        <text class="head-pill">150×96 紧凑设计</text>
       </view>
 
-      <!-- Preview Stage with Live Stream Simulation Background -->
-      <view class="preview-stage-live">
-        <view class="stream-backdrop">
-          <view class="stream-circle c1"></view>
-          <view class="stream-circle c2"></view>
-          <view class="stream-badge">直播画面模拟</view>
-        </view>
-
-        <!-- Frosted Glass Live Card Mockup -->
-        <view class="frosted-live-card">
-          <!-- Top Goal Area -->
-          <view class="glass-goal-area">
-            <view class="glass-head">
-              <view class="glass-heart">♥</view>
-              <text class="glass-title">点赞目标</text>
-              <text class="glass-total">5.2万</text>
-            </view>
-            
-            <view class="glass-bar">
-              <view tt:for="{{segments}}" tt:key="*this" class="glass-seg {{item < 6 ? 'glass-seg-on' : ''}}"></view>
-            </view>
-            
-            <view class="glass-meta">
-              <text class="glass-tier-pill">已达2档</text>
-              <text class="glass-percent">52%</text>
-              <text class="glass-remaining">还差 4.8万 升级</text>
-            </view>
+      <view class="arcade-stage">
+        <!-- 街机卡片真实模拟展示 (150x96 @ 1.4x 放大比例展示) -->
+        <view class="mock-arcade-card">
+          <!-- 上部：Stage & 计分板 -->
+          <view class="mock-top">
+            <view class="mock-stage-pill">STAGE 02</view>
+            <view class="mock-score">5.2万</view>
           </view>
 
-          <!-- Frosted Divider -->
-          <view class="glass-divider"></view>
+          <!-- 10 段式能量槽 -->
+          <view class="mock-gauge">
+            <view tt:for="{{segments}}" tt:key="*this" class="mock-block {{item < 6 ? 'block-lit' : ''}}"></view>
+          </view>
 
-          <!-- Bottom Board Area -->
-          <view class="glass-board-area">
-            <view class="glass-board-head">
-              <view class="glass-crown">👑</view>
-              <text class="glass-board-title">贡献榜</text>
-              <text class="glass-count">128人参与</text>
-            </view>
-            
-            <view class="glass-rows">
-              <view tt:for="{{sampleTop4}}" tt:key="id" class="glass-row glass-row-{{item.medal}}">
-                <view class="glass-medal glass-medal-{{item.medal}}">{{item.rank}}</view>
-                <view class="glass-avatar" style="background: {{item.color}}">{{item.initial}}</view>
-                <text class="glass-name">{{item.name}}</text>
-                <text class="glass-likes {{item.medal === 1 ? 'glass-likes-gold' : ''}}">{{item.likesText}}</text>
-              </view>
-            </view>
+          <!-- 关卡差额信息 -->
+          <view class="mock-meta">
+            <text class="mock-diff">距破关还差 4.8万 赞</text>
+            <text class="mock-pct">52%</text>
+          </view>
 
-            <view class="glass-tip">轻触屏幕点赞 · 实时冲榜 ✨</view>
+          <!-- 像素打孔虚线 -->
+          <view class="mock-divider"></view>
+
+          <!-- 下部：MVP 榜首擂台 -->
+          <view class="mock-mvp">
+            <text class="mock-crown">👑</text>
+            <view class="mock-avatar" style="background: {{sampleMVP.color}}">{{sampleMVP.initial}}</view>
+            <view class="mock-mvp-info">
+              <text class="mock-name">{{sampleMVP.name}}</text>
+              <text class="mock-likes">贡献 {{sampleMVP.likesText}} 赞</text>
+            </view>
+            <view class="mock-tag">抢擂 ></view>
           </view>
         </view>
       </view>
     </view>
   </block>
 
-  <!-- ================= RUNNING STATE ================= -->
+  <!-- ================= 运行中监控状态 (RUNNING) ================= -->
   <block tt:else>
-    <!-- Status Header Bar -->
-    <view class="status-bar glass-panel">
+    <!-- 运行状态条 -->
+    <view class="arcade-status-bar">
       <view class="status-left">
-        <view class="pulse-dot {{subscription === 'connected' ? 'dot-online' : 'dot-warn'}}"></view>
-        <text class="status-state">{{subscription === 'connected' ? '互动进行中' : (subscription === 'failed' ? '连接异常' : '连接中')}}</text>
+        <view class="arcade-led {{subscription === 'connected' ? 'led-green' : 'led-yellow'}}"></view>
+        <text class="status-title">{{subscription === 'connected' ? '互动挂载中' : '网络重连中'}}</text>
         <text class="status-timer">{{elapsed}}</text>
       </view>
       <view class="status-right">
-        <text class="visibility-badge {{cardHidden ? 'badge-hidden' : 'badge-visible'}}">
-          {{cardHidden ? '卡片已隐藏' : '卡片展示中'}}
+        <text class="status-badge {{cardHidden ? 'badge-off' : 'badge-on'}}">
+          {{cardHidden ? '挂件已隐藏' : '挂件展示中'}}
         </text>
       </view>
     </view>
 
-    <!-- Live Goal Stats Card -->
-    <view class="card-box glass-panel stats-card">
-      <view class="stats-top">
-        <view class="stats-label-group">
-          <view class="px-icon px-heart"></view>
-          <text class="stats-label">本场累计点赞</text>
+    <!-- 街机计分板看板 (Scoreboard Card) -->
+    <view class="arcade-card scoreboard-card">
+      <view class="scoreboard-head">
+        <view class="score-label-group">
+          <text class="score-bolt">⚡</text>
+          <text class="score-label">本场累计集气点赞 (SCORE)</text>
         </view>
-        <view class="btn-edit-goal" bindtap="toggleGoalEditor">
-          <text>{{editingGoal ? '收起' : '修改目标'}}</text>
+        <view class="btn-tune-goal" bindtap="toggleGoalEditor">
+          <text>{{editingGoal ? '收起配置' : '修改关卡'}}</text>
         </view>
       </view>
 
-      <view class="stats-hero">
-        <text class="stats-hero-num">{{totalText}}</text>
-        <text class="stats-hero-unit">次点赞</text>
+      <view class="scoreboard-hero">
+        <text class="hero-num">{{totalText}}</text>
+        <text class="hero-unit">次点赞</text>
       </view>
 
-      <view class="stats-progress-box">
-        <view class="progress-bar">
-          <view tt:for="{{segments}}" tt:key="*this" class="seg-block {{item < litSegments ? 'seg-lit' : ''}}"></view>
+      <view class="gauge-monitor">
+        <view class="gauge-slot">
+          <view tt:for="{{segments}}" tt:key="*this" class="slot-block {{item < litSegments ? 'slot-lit' : ''}}"></view>
         </view>
-        <text class="progress-percent">{{percent}}%</text>
+        <text class="gauge-pct">{{percent}}%</text>
       </view>
 
-      <view class="stats-footer-info">
-        <text class="stats-target-desc">当前目标: {{targetText}} (还差 {{remainingText}})</text>
-        <text tt:if="{{goalMode === 'auto'}}" class="stats-tier-badge">已达成 {{level}} 档</text>
+      <view class="stage-info-row">
+        <text class="stage-desc">当前: 第 {{level}} 关 (还差 {{remainingText}} 晋级)</text>
+        <text class="players-count">共 {{viewerCount}} 位玩家参与</text>
       </view>
 
-      <!-- In-flight Goal Editor Drawer -->
-      <view tt:if="{{editingGoal}}" class="inline-editor">
-        <view class="inline-editor-title">快速修改目标：</view>
-        <view class="chip-grid">
+      <!-- 实时关卡调节抽屉 -->
+      <view tt:if="{{editingGoal}}" class="inline-tuner">
+        <view class="tuner-title">实时切换本场关卡：</view>
+        <view class="chip-row">
           <view tt:for="{{goalOptions}}" tt:key="value" 
-                class="chip-item {{goalMode === item.value ? 'chip-active' : ''}}" 
+                class="arcade-chip {{goalMode === item.value ? 'chip-on' : ''}}" 
                 data-value="{{item.value}}" 
                 bindtap="selectGoal">
-            <text class="chip-label">{{item.label}}</text>
+            <text class="chip-text">{{item.label}}</text>
           </view>
         </view>
-        <view class="custom-row">
-          <input class="custom-input" type="number" placeholder="输入自定义目标" value="{{customGoal}}" bindinput="inputCustomGoal" />
-          <view class="btn-custom" bindtap="confirmCustomGoal">应用</view>
+        <view class="custom-input-row">
+          <input class="arcade-input" type="number" placeholder="输入新目标" value="{{customGoal}}" bindinput="inputCustomGoal" />
+          <view class="btn-set-goal" bindtap="confirmCustomGoal">生效</view>
         </view>
       </view>
     </view>
 
-    <!-- Live Leaderboard Card -->
-    <view class="card-box glass-panel board-card">
-      <view class="card-header">
-        <view class="px-icon px-crown"></view>
-        <text class="card-title">观众点赞贡献榜</text>
-        <text class="card-tag">Top 6 + 冲榜末位</text>
+    <!-- 实时贡献排行榜 (TOP 6 + 末位冲榜) -->
+    <view class="arcade-card">
+      <view class="card-head">
+        <view class="head-icon">👑</view>
+        <text class="head-title">本场点赞贡献榜</text>
+        <text class="head-pill">实时 TOP 6 + 冲榜位</text>
       </view>
 
-      <view class="board-body">
+      <view class="board-container">
         <template tt:if="{{board.length}}" is="board-item" data="{{rows: board}}" />
-        <view tt:else class="board-empty">
-          <view class="empty-icon">✨</view>
-          <text class="empty-text">等待观众点赞上榜中...</text>
+        <view tt:else class="board-empty-state">
+          <view class="empty-icon">👾</view>
+          <text class="empty-text">等待首位玩家点赞登顶 MVP...</text>
         </view>
       </view>
 
-      <view class="reset-action" bindtap="resetSession">
-        <text class="reset-text">重置本场数据</text>
+      <view class="btn-reset-data" bindtap="resetSession">
+        <text>重置本场数据</text>
       </view>
     </view>
   </block>
 
-  <!-- ================= BOTTOM ACTION BAR ================= -->
-  <view class="bottom-bar">
-    <view tt:if="{{!running}}" class="btn-pixel btn-primary" bindtap="startGame">
-      <view class="px-icon px-sparkle"></view>
-      <text class="btn-text">开启毛玻璃互动卡</text>
+  <!-- ================= 底部操作控制台 ================= -->
+  <view class="arcade-bottom-dock">
+    <view tt:if="{{!running}}" class="arcade-btn btn-launch" bindtap="startGame">
+      <text class="btn-glow-text">⚡ 一键挂载上屏</text>
     </view>
     <block tt:else>
-      <view class="btn-pixel btn-ghost" bindtap="toggleCardVisible">
-        <text class="btn-text">{{cardHidden ? '展示卡片' : '隐藏卡片'}}</text>
+      <view class="arcade-btn btn-toggle" bindtap="toggleCardVisible">
+        <text>{{cardHidden ? '恢复挂件展示' : '暂时隐藏挂件'}}</text>
       </view>
-      <view class="btn-pixel btn-danger" bindtap="closeGame">
-        <text class="btn-text">结束玩法</text>
+      <view class="arcade-btn btn-close" bindtap="closeGame">
+        <text>下架并结束</text>
       </view>
     </block>
   </view>
