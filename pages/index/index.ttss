@@ -1,14 +1,16 @@
 /* ================= NEO-ARCADE 主播控制台主题 ================= */
+/* 颜色统一使用 app.ttss 中定义的 CSS 变量，回退值保证兼容性 */
+
 page {
-  background-color: #0c0f18;
+  background-color: var(--color-bg-dark, #0c0f18);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  color: #f8fafc;
+  color: var(--color-text-white, #f8fafc);
 }
 
 .arcade-console {
   min-height: 100vh;
   box-sizing: border-box;
-  padding: 16px 16px 108px;
+  padding: 16px 16px calc(80px + env(safe-area-inset-bottom, 20px));
 }
 
 /* ================= 头部品牌展示 ================= */
@@ -22,7 +24,7 @@ page {
 }
 .hero-bolt {
   font-size: 18px;
-  color: #ff3366;
+  color: var(--color-primary, #ff3366);
   margin-right: 6px;
 }
 .hero-title {
@@ -35,8 +37,8 @@ page {
   margin-left: 8px;
   font-size: 10px;
   font-weight: 900;
-  color: #0c0f18;
-  background: #00e5a3;
+  color: var(--color-bg-dark, #0c0f18);
+  background: var(--color-accent, #00e5a3);
   padding: 1px 6px;
   border-radius: 3px;
 }
@@ -44,13 +46,13 @@ page {
   display: block;
   margin-top: 5px;
   font-size: 12px;
-  color: #8d99ae;
+  color: var(--color-text-muted, #8d99ae);
 }
 
 /* ================= 街机切角卡片面板 (Chassis Panels) ================= */
 .arcade-card {
-  background: #141829;
-  border: 1.5px solid #232b45;
+  background: var(--color-bg-card, #141829);
+  border: 1.5px solid var(--color-border, #232b45);
   border-radius: 8px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
   padding: 16px;
@@ -75,8 +77,8 @@ page {
   margin-left: auto;
   font-size: 10px;
   font-weight: 700;
-  color: #00e5ff;
-  background: rgba(0, 229, 255, 0.12);
+  color: var(--color-info, #00e5ff);
+  background: var(--color-info-bg, rgba(0, 229, 255, 0.12));
   padding: 2px 8px;
   border-radius: 4px;
   border: 1px solid rgba(0, 229, 255, 0.25);
@@ -94,26 +96,26 @@ page {
   align-items: center;
   padding: 8px 14px;
   background: #1c223a;
-  border: 1.5px solid #2d3758;
+  border: 1.5px solid var(--color-border-light, #2d3758);
   border-radius: 6px;
   font-size: 13px;
   font-weight: 700;
-  color: #c5cee0;
-  transition: all 0.15s ease;
+  color: var(--color-text-dim, #c5cee0);
+  transition: all 0.2s ease, box-shadow 0.2s ease;
 }
 .arcade-chip:active {
   transform: translateY(1px);
 }
 .chip-on {
-  background: rgba(255, 51, 102, 0.15);
-  border-color: #ff3366;
-  color: #ff3366;
+  background: var(--color-primary-bg, rgba(255, 51, 102, 0.15));
+  border-color: var(--color-primary, #ff3366);
+  color: var(--color-primary, #ff3366);
   box-shadow: 0 0 10px rgba(255, 51, 102, 0.25);
 }
 .chip-badge {
   margin-left: 6px;
   font-size: 9px;
-  background: #ff3366;
+  background: var(--color-primary, #ff3366);
   color: #ffffff;
   padding: 1px 4px;
   border-radius: 3px;
@@ -131,25 +133,32 @@ page {
   flex: 1;
   height: 38px;
   padding: 0 12px;
-  background: #0f121e;
-  border: 1.5px solid #2d3758;
+  background: var(--color-bg-input, #0f121e);
+  border: 1.5px solid var(--color-border-light, #2d3758);
   border-radius: 6px;
   font-size: 13px;
   color: #ffffff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+/* 输入框焦点态 */
+.input-focused {
+  border-color: var(--color-primary, #ff3366) !important;
+  box-shadow: 0 0 8px rgba(255, 51, 102, 0.2);
 }
 .btn-set-goal {
   height: 38px;
   line-height: 38px;
   padding: 0 16px;
   background: #232b45;
-  border: 1px solid #3b4868;
+  border: 1px solid var(--color-border-dim, #3b4868);
   color: #ffffff;
   border-radius: 6px;
   font-size: 13px;
   font-weight: 700;
+  transition: background 0.15s ease;
 }
 .btn-set-goal:active {
-  background: #2d3758;
+  background: var(--color-border-light, #2d3758);
 }
 
 .arcade-hint-box {
@@ -162,14 +171,14 @@ page {
   border-radius: 6px;
 }
 .hint-bolt {
-  color: #00e5ff;
+  color: var(--color-info, #00e5ff);
   font-size: 12px;
   margin-right: 6px;
 }
 .hint-text {
   flex: 1;
   font-size: 11px;
-  color: #8d99ae;
+  color: var(--color-text-muted, #8d99ae);
   line-height: 1.45;
 }
 
@@ -179,9 +188,9 @@ page {
   justify-content: center;
   align-items: center;
   padding: 22px 0;
-  background: #0a0d16;
+  background: var(--color-bg-screen, #0a0d16);
   border-radius: 8px;
-  border: 1px dashed #232b45;
+  border: 1px dashed var(--color-border, #232b45);
 }
 
 /* 150x96 挂件标准比例展示 (210px x 134.4px) */
@@ -203,16 +212,16 @@ page {
 .mock-stage-pill {
   font-size: 11px;
   font-weight: 900;
-  color: #00e5ff;
+  color: var(--color-info, #00e5ff);
   font-family: monospace;
   background: #0f121d;
   padding: 2px 6px;
-  border-left: 2px solid #00e5ff;
+  border-left: 2px solid var(--color-info, #00e5ff);
 }
 .mock-score {
   font-size: 16px;
   font-weight: 900;
-  color: #ff3366;
+  color: var(--color-primary, #ff3366);
   font-family: monospace;
 }
 
@@ -227,9 +236,11 @@ page {
   flex: 1;
   height: 7px;
   background: #1c2237;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 .block-lit {
-  background: #ff3366;
+  background: var(--color-primary, #ff3366);
+  box-shadow: 0 0 4px rgba(255, 51, 102, 0.4);
 }
 
 .mock-meta {
@@ -240,7 +251,7 @@ page {
   font-size: 10px;
 }
 .mock-diff {
-  color: #8d99ae;
+  color: var(--color-text-muted, #8d99ae);
   font-weight: 600;
 }
 .mock-pct {
@@ -251,7 +262,7 @@ page {
 
 .mock-divider {
   height: 1px;
-  background: #232b45;
+  background: var(--color-border, #232b45);
   margin: 7px 0;
 }
 
@@ -260,7 +271,7 @@ page {
   align-items: center;
   padding: 4px 6px;
   background: #0f121d;
-  border: 1px solid #ffb800;
+  border: 1px solid var(--color-gold, #ffb800);
   border-radius: 4px;
 }
 .mock-crown {
@@ -290,14 +301,14 @@ page {
 }
 .mock-likes {
   font-size: 9px;
-  color: #ffb800;
+  color: var(--color-gold, #ffb800);
   font-weight: 600;
 }
 .mock-tag {
   font-size: 9px;
   font-weight: 900;
   color: #ffffff;
-  background: #ff3366;
+  background: var(--color-primary, #ff3366);
   padding: 2px 6px;
   border-radius: 2px;
 }
@@ -308,8 +319,8 @@ page {
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  background: #141829;
-  border: 1.5px solid #232b45;
+  background: var(--color-bg-card, #141829);
+  border: 1.5px solid var(--color-border, #232b45);
   border-radius: 8px;
   margin-bottom: 14px;
 }
@@ -317,19 +328,26 @@ page {
   display: flex;
   align-items: center;
 }
+/* LED 指示灯 + 闪烁动画 */
 .arcade-led {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   margin-right: 8px;
+  animation: led-blink 2s ease-in-out infinite;
 }
 .led-green {
-  background: #00e5a3;
-  box-shadow: 0 0 8px #00e5a3;
+  background: var(--color-accent, #00e5a3);
+  box-shadow: 0 0 8px var(--color-accent, #00e5a3);
 }
 .led-yellow {
-  background: #ffb800;
-  box-shadow: 0 0 8px #ffb800;
+  background: var(--color-gold, #ffb800);
+  box-shadow: 0 0 8px var(--color-gold, #ffb800);
+  animation-duration: 0.8s;
+}
+@keyframes led-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }
 .status-title {
   font-size: 13px;
@@ -340,8 +358,24 @@ page {
   margin-left: 8px;
   font-size: 13px;
   font-weight: 700;
-  color: #8d99ae;
+  color: var(--color-text-muted, #8d99ae);
   font-family: monospace;
+}
+.status-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+/* TPS 实时指标徽标 */
+.status-tps {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--color-primary, #ff3366);
+  font-family: monospace;
+  padding: 2px 6px;
+  background: var(--color-primary-bg, rgba(255, 51, 102, 0.15));
+  border-radius: 4px;
+  border: 1px solid rgba(255, 51, 102, 0.3);
 }
 .status-badge {
   font-size: 11px;
@@ -350,13 +384,13 @@ page {
   border-radius: 4px;
 }
 .badge-on {
-  background: rgba(0, 229, 163, 0.15);
-  color: #00e5a3;
+  background: var(--color-accent-bg, rgba(0, 229, 163, 0.15));
+  color: var(--color-accent, #00e5a3);
   border: 1px solid rgba(0, 229, 163, 0.3);
 }
 .badge-off {
   background: rgba(141, 153, 174, 0.15);
-  color: #8d99ae;
+  color: var(--color-text-muted, #8d99ae);
   border: 1px solid rgba(141, 153, 174, 0.3);
 }
 
@@ -374,7 +408,7 @@ page {
   align-items: center;
 }
 .score-bolt {
-  color: #ff3366;
+  color: var(--color-primary, #ff3366);
   font-size: 14px;
   margin-right: 6px;
 }
@@ -386,10 +420,14 @@ page {
 .btn-tune-goal {
   font-size: 12px;
   font-weight: 700;
-  color: #ff3366;
+  color: var(--color-primary, #ff3366);
   padding: 3px 8px;
-  background: rgba(255, 51, 102, 0.12);
+  background: var(--color-primary-bg, rgba(255, 51, 102, 0.12));
   border-radius: 4px;
+  transition: background 0.15s ease;
+}
+.btn-tune-goal:active {
+  background: rgba(255, 51, 102, 0.25);
 }
 
 .scoreboard-hero {
@@ -397,18 +435,28 @@ page {
   align-items: baseline;
   margin-top: 10px;
 }
+/* 大号计分数字 + 变化脉冲动画 */
 .hero-num {
   font-size: 42px;
   font-weight: 900;
-  color: #ff3366;
+  color: var(--color-primary, #ff3366);
   font-family: monospace;
   line-height: 1;
   text-shadow: 0 0 16px rgba(255, 51, 102, 0.3);
+  transition: transform 0.2s ease, text-shadow 0.2s ease;
+}
+.hero-num-anim {
+  animation: num-pulse 0.3s ease;
+}
+@keyframes num-pulse {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.06); text-shadow: 0 0 24px rgba(255, 51, 102, 0.6); }
+  100% { transform: scale(1); }
 }
 .hero-unit {
   margin-left: 8px;
   font-size: 13px;
-  color: #8d99ae;
+  color: var(--color-text-muted, #8d99ae);
   font-weight: 700;
 }
 
@@ -426,20 +474,22 @@ page {
   padding: 3px;
   border-radius: 4px;
 }
+/* 能量槽段 + 点亮过渡动画 */
 .slot-block {
   flex: 1;
   height: 10px;
   background: #1c2237;
   border-radius: 1px;
+  transition: background 0.35s ease, box-shadow 0.35s ease;
 }
 .slot-lit {
-  background: #ff3366;
+  background: var(--color-primary, #ff3366);
   box-shadow: 0 0 6px rgba(255, 51, 102, 0.5);
 }
 .gauge-pct {
   font-size: 18px;
   font-weight: 900;
-  color: #ff3366;
+  color: var(--color-primary, #ff3366);
   font-family: monospace;
   width: 48px;
   text-align: right;
@@ -451,22 +501,39 @@ page {
   justify-content: space-between;
   margin-top: 12px;
   font-size: 12px;
-  color: #8d99ae;
+  color: var(--color-text-muted, #8d99ae);
 }
 .players-count {
   font-weight: 700;
-  color: #00e5ff;
+  color: var(--color-info, #00e5ff);
 }
 
+/* 关卡调节抽屉 (带 max-height 动画) */
 .inline-tuner {
+  overflow: hidden;
+  transition: max-height 0.35s ease, opacity 0.25s ease, margin-top 0.35s ease;
+  border-top: 1px dashed var(--color-border, #232b45);
+}
+.tuner-open {
+  max-height: 200px;
+  opacity: 1;
   margin-top: 16px;
   padding-top: 14px;
-  border-top: 1px dashed #232b45;
+}
+.tuner-closed {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+  padding-top: 0;
+  border-top-color: transparent;
+}
+.tuner-inner {
+  /* 内部不被裁切 */
 }
 .tuner-title {
   font-size: 12px;
   font-weight: 800;
-  color: #c5cee0;
+  color: var(--color-text-dim, #c5cee0);
   margin-bottom: 8px;
 }
 
@@ -480,35 +547,49 @@ page {
   height: 38px;
   margin-bottom: 6px;
   padding: 0 10px;
-  background: #181d33;
-  border: 1px solid #232b45;
+  background: var(--color-bg-row, #181d33);
+  border: 1px solid var(--color-border, #232b45);
   border-radius: 6px;
   font-size: 13px;
+}
+/* 榜单行入场交错动画 */
+.board-row-enter {
+  animation: row-slide-in 0.35s ease both;
+}
+@keyframes row-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 .arcade-row-top {
   height: 42px;
 }
 .arcade-row-gold {
   background: rgba(255, 184, 0, 0.08);
-  border-color: #ffb800;
+  border-color: var(--color-gold, #ffb800);
 }
 .arcade-medal {
   width: 20px;
   height: 20px;
   line-height: 20px;
   text-align: center;
-  color: #0c0f18;
+  color: var(--color-bg-dark, #0c0f18);
   font-size: 11px;
   font-weight: 900;
   border-radius: 3px;
 }
-.medal-1 { background: #ffb800; }
-.medal-2 { background: #c5cee0; }
+.medal-1 { background: var(--color-gold, #ffb800); }
+.medal-2 { background: var(--color-text-dim, #c5cee0); }
 .medal-3 { background: #ff9900; }
 .arcade-rank {
   width: 20px;
   text-align: center;
-  color: #8d99ae;
+  color: var(--color-text-muted, #8d99ae);
   font-size: 12px;
   font-weight: 800;
   font-family: monospace;
@@ -536,18 +617,18 @@ page {
   margin-left: 8px;
   font-weight: 900;
   font-family: monospace;
-  color: #c5cee0;
+  color: var(--color-text-dim, #c5cee0);
   font-size: 13px;
 }
 .score-gold {
-  color: #ffb800;
+  color: var(--color-gold, #ffb800);
 }
 .arcade-cheer {
   margin-left: 6px;
   padding: 1px 6px;
-  background: rgba(255, 51, 102, 0.15);
-  border: 1px solid #ff3366;
-  color: #ff3366;
+  background: var(--color-primary-bg, rgba(255, 51, 102, 0.15));
+  border: 1px solid var(--color-primary, #ff3366);
+  color: var(--color-primary, #ff3366);
   font-size: 10px;
   font-weight: 800;
   border-radius: 3px;
@@ -565,38 +646,57 @@ page {
 .px-dot {
   width: 3px;
   height: 3px;
-  background: #3b4868;
+  background: var(--color-border-dim, #3b4868);
 }
 
+/* 空态增强：呼吸灯 + 引导文案 */
 .board-empty-state {
   padding: 30px 0;
   text-align: center;
 }
 .empty-icon {
-  font-size: 24px;
-  margin-bottom: 6px;
+  font-size: 28px;
+  margin-bottom: 8px;
+  display: inline-block;
 }
-.empty-text {
-  font-size: 12px;
-  color: #8d99ae;
+.pulse-glow {
+  animation: empty-pulse 2s ease-in-out infinite;
+}
+@keyframes empty-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.15); opacity: 1; }
+}
+.empty-title {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-muted, #8d99ae);
+  margin-bottom: 4px;
+}
+.empty-hint {
+  display: block;
+  font-size: 11px;
+  color: var(--color-border-dim, #3b4868);
 }
 
 .btn-reset-data {
   margin-top: 14px;
   padding: 10px 0;
   text-align: center;
-  background: #181d33;
-  border: 1px dashed #3b4868;
+  background: var(--color-bg-row, #181d33);
+  border: 1px dashed var(--color-border-dim, #3b4868);
   border-radius: 6px;
   font-size: 12px;
-  color: #8d99ae;
+  color: var(--color-text-muted, #8d99ae);
   font-weight: 700;
+  transition: background 0.15s ease;
 }
 .btn-reset-data:active {
-  background: #232b45;
+  background: var(--color-border, #232b45);
 }
 
 /* ================= 底部操作控制台 (Bottom Dock) ================= */
+/* P0 修复：安全区域使用独立 padding-bottom + env() */
 .arcade-bottom-dock {
   position: fixed;
   left: 0;
@@ -604,9 +704,10 @@ page {
   bottom: 0;
   display: flex;
   gap: 12px;
-  padding: 12px 16px env(safe-area-inset-bottom, 20px);
-  background: #0c0f18;
-  border-top: 1.5px solid #232b45;
+  padding: 12px 16px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 20px));
+  background: var(--color-bg-dark, #0c0f18);
+  border-top: 1.5px solid var(--color-border, #232b45);
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.6);
 }
 
@@ -626,7 +727,7 @@ page {
 }
 
 .btn-launch {
-  background: #ff3366;
+  background: var(--color-primary, #ff3366);
   color: #ffffff;
   box-shadow: 0 4px 14px rgba(255, 51, 102, 0.4);
 }
@@ -634,11 +735,20 @@ page {
 .btn-toggle {
   background: #1c223a;
   color: #ffffff;
-  border: 1.5px solid #3b4868;
+  border: 1.5px solid var(--color-border-dim, #3b4868);
 }
 
+/* P1 修复：下架按钮视觉弱化，缩小占比，灰色调 */
 .btn-close {
-  background: #141829;
-  color: #ff3366;
-  border: 1.5px solid #ff3366;
+  flex: 0.6;
+  background: transparent;
+  color: var(--color-text-muted, #8d99ae);
+  border: 1px solid var(--color-border-light, #2d3758);
+  font-size: 13px;
+  font-weight: 700;
+}
+.btn-close:active {
+  background: rgba(255, 51, 102, 0.1);
+  color: var(--color-primary, #ff3366);
+  border-color: var(--color-primary, #ff3366);
 }

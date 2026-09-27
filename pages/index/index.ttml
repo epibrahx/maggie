@@ -6,7 +6,7 @@
         <view class="px-dot"></view><view class="px-dot"></view><view class="px-dot"></view>
       </view>
     </view>
-    <view class="arcade-row {{item.medal ? 'arcade-row-top' : ''}} {{item.medal === 1 ? 'arcade-row-gold' : ''}}">
+    <view class="arcade-row {{item.medal ? 'arcade-row-top' : ''}} {{item.medal === 1 ? 'arcade-row-gold' : ''}} board-row-enter" style="animation-delay: {{index * 60}}ms">
       <view tt:if="{{item.medal}}" class="arcade-medal medal-{{item.medal}}">{{item.rank}}</view>
       <text tt:else class="arcade-rank">{{item.rank}}</text>
       
@@ -53,11 +53,13 @@
       </view>
 
       <view class="custom-input-row">
-        <input class="arcade-input" 
+        <input class="arcade-input {{inputFocused ? 'input-focused' : ''}}" 
                type="number" 
                placeholder="自定义单关点赞目标 (如 50000)" 
                value="{{customGoal}}" 
-               bindinput="inputCustomGoal" />
+               bindinput="inputCustomGoal"
+               bindfocus="onInputFocus"
+               bindblur="onInputBlur" />
         <view class="btn-set-goal" bindtap="confirmCustomGoal">应用</view>
       </view>
 
@@ -67,32 +69,32 @@
       </view>
     </view>
 
-    <!-- 模块 2：挂件实播呈现 (1:1 街机挂件) -->
+    <!-- 模块 2：挂件实播预览 (动态数据绑定) -->
     <view class="arcade-card">
       <view class="card-head">
         <view class="head-icon">📺</view>
         <text class="head-title">直播间挂件效果</text>
-        <text class="head-pill">150×96 紧凑设计</text>
+        <text class="head-pill">实时预览</text>
       </view>
 
       <view class="arcade-stage">
-        <!-- 街机卡片真实模拟展示 (150x96 @ 1.4x 放大比例展示) -->
+        <!-- 街机卡片预览（数据随 goalMode 变化） -->
         <view class="mock-arcade-card">
           <!-- 上部：Stage & 计分板 -->
           <view class="mock-top">
-            <view class="mock-stage-pill">STAGE 02</view>
-            <view class="mock-score">5.2万</view>
+            <view class="mock-stage-pill">{{previewStage}}</view>
+            <view class="mock-score">{{previewScore}}</view>
           </view>
 
           <!-- 10 段式能量槽 -->
           <view class="mock-gauge">
-            <view tt:for="{{segments}}" tt:key="*this" class="mock-block {{item < 6 ? 'block-lit' : ''}}"></view>
+            <view tt:for="{{previewSegments}}" tt:key="*this" class="mock-block {{item < previewLitSegs ? 'block-lit' : ''}}"></view>
           </view>
 
           <!-- 关卡差额信息 -->
           <view class="mock-meta">
-            <text class="mock-diff">距破关还差 4.8万 赞</text>
-            <text class="mock-pct">52%</text>
+            <text class="mock-diff">距破关还差 {{previewDiff}} 赞</text>
+            <text class="mock-pct">{{previewPct}}</text>
           </view>
 
           <!-- 像素打孔虚线 -->
@@ -115,7 +117,7 @@
 
   <!-- ================= 运行中监控状态 (RUNNING) ================= -->
   <block tt:else>
-    <!-- 运行状态条 -->
+    <!-- 运行状态条（含 TPS 指标） -->
     <view class="arcade-status-bar">
       <view class="status-left">
         <view class="arcade-led {{subscription === 'connected' ? 'led-green' : 'led-yellow'}}"></view>
@@ -123,6 +125,7 @@
         <text class="status-timer">{{elapsed}}</text>
       </view>
       <view class="status-right">
+        <text class="status-tps">{{tpsText}}</text>
         <text class="status-badge {{cardHidden ? 'badge-off' : 'badge-on'}}">
           {{cardHidden ? '挂件已隐藏' : '挂件展示中'}}
         </text>
@@ -142,7 +145,7 @@
       </view>
 
       <view class="scoreboard-hero">
-        <text class="hero-num">{{totalText}}</text>
+        <text class="hero-num hero-num-anim">{{totalText}}</text>
         <text class="hero-unit">次点赞</text>
       </view>
 
@@ -158,20 +161,28 @@
         <text class="players-count">共 {{viewerCount}} 位玩家参与</text>
       </view>
 
-      <!-- 实时关卡调节抽屉 -->
-      <view tt:if="{{editingGoal}}" class="inline-tuner">
-        <view class="tuner-title">实时切换本场关卡：</view>
-        <view class="chip-row">
-          <view tt:for="{{goalOptions}}" tt:key="value" 
-                class="arcade-chip {{goalMode === item.value ? 'chip-on' : ''}}" 
-                data-value="{{item.value}}" 
-                bindtap="selectGoal">
-            <text class="chip-text">{{item.label}}</text>
+      <!-- 实时关卡调节抽屉（使用 class 切换动画，不用 tt:if 销毁 DOM） -->
+      <view class="inline-tuner {{editingGoal ? 'tuner-open' : 'tuner-closed'}}">
+        <view class="tuner-inner">
+          <view class="tuner-title">实时切换本场关卡：</view>
+          <view class="chip-row">
+            <view tt:for="{{goalOptions}}" tt:key="value" 
+                  class="arcade-chip {{goalMode === item.value ? 'chip-on' : ''}}" 
+                  data-value="{{item.value}}" 
+                  bindtap="selectGoal">
+              <text class="chip-text">{{item.label}}</text>
+            </view>
           </view>
-        </view>
-        <view class="custom-input-row">
-          <input class="arcade-input" type="number" placeholder="输入新目标" value="{{customGoal}}" bindinput="inputCustomGoal" />
-          <view class="btn-set-goal" bindtap="confirmCustomGoal">生效</view>
+          <view class="custom-input-row">
+            <input class="arcade-input {{inputFocused ? 'input-focused' : ''}}" 
+                   type="number" 
+                   placeholder="输入新目标" 
+                   value="{{customGoal}}" 
+                   bindinput="inputCustomGoal"
+                   bindfocus="onInputFocus"
+                   bindblur="onInputBlur" />
+            <view class="btn-set-goal" bindtap="confirmCustomGoal">生效</view>
+          </view>
         </view>
       </view>
     </view>
@@ -187,8 +198,9 @@
       <view class="board-container">
         <template tt:if="{{board.length}}" is="board-item" data="{{rows: board}}" />
         <view tt:else class="board-empty-state">
-          <view class="empty-icon">👾</view>
-          <text class="empty-text">等待首位玩家点赞登顶 MVP...</text>
+          <view class="empty-icon pulse-glow">👾</view>
+          <text class="empty-title">等待首位玩家点赞登顶 MVP...</text>
+          <text class="empty-hint">引导观众双击屏幕开始互动吧 💥</text>
         </view>
       </view>
 
@@ -208,7 +220,7 @@
         <text>{{cardHidden ? '恢复挂件展示' : '暂时隐藏挂件'}}</text>
       </view>
       <view class="arcade-btn btn-close" bindtap="closeGame">
-        <text>下架并结束</text>
+        <text>下架结束</text>
       </view>
     </block>
   </view>

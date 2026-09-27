@@ -1,0 +1,26 @@
+/* ================= 全局样式与主题变量 ================= */
+page {
+  --color-primary: #FF3366;
+  --color-primary-light: #FF6688;
+  --color-primary-bg: rgba(255, 51, 102, 0.15);
+  --color-accent: #00E5A3;
+  --color-accent-bg: rgba(0, 229, 163, 0.15);
+  --color-info: #00E5FF;
+  --color-info-bg: rgba(0, 229, 255, 0.12);
+  --color-gold: #FFB800;
+  --color-bg-dark: #0c0f18;
+  --color-bg-card: #141829;
+  --color-bg-input: #0f121e;
+  --color-bg-screen: #0a0d16;
+  --color-bg-row: #181d33;
+  --color-border: #232b45;
+  --color-border-light: #2d3758;
+  --color-border-dim: #3b4868;
+  --color-text-white: #f8fafc;
+  --color-text-muted: #8d99ae;
+  --color-text-dim: #c5cee0;
+
+  background-color: var(--color-bg-dark, #0c0f18);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: var(--color-text-white, #f8fafc);
+}
